@@ -1,0 +1,109 @@
+#!/bin/bash
+# /etc/init.d/jupyterhub
+#
+# chkconfig: 2345 90 10
+# description: Activates/Deactivates jupyterhub
+
+
+
+name=`basename $0`
+pid_file="/var/run/$name.pid"
+stdout_log="/var/log/$name.log"
+stderr_log="/var/log/$name.err"
+
+bash -c 'source /opt/medial/python36/enable && mkdir -p $JUPYTER_RUNTIME_DIR'
+
+#make sure sqlite dir is writable for ipython
+chmod a+rw /var/opt/medial/jupyter
+
+cmd='source /opt/medial/python36/enable ; source /opt/medial/nodejs/enable ;jupyterhub --config=/opt/medial/python36/usr/etc/jupyter/jupyterhub_config.py --url="http://'`hostname`':9000" --no-db --pid-file='$pid_file' & '
+user="root"
+
+get_pid() {
+    cat "$pid_file"
+}
+
+is_running() {
+    [ -f "$pid_file" ] && ps `get_pid` > /dev/null 2>&1
+}
+
+case "$1" in
+    start)
+    if is_running; then
+        echo "Already started"
+    else
+        echo -n "Starting $name ."
+        if [ -z "$user" ]; then
+            sudo bash -c "$cmd" >> "$stdout_log" 2>> "$stderr_log"
+        else
+            sudo -i -u "$user" bash -c "$cmd" >> "$stdout_log" 2>> "$stderr_log"
+        fi
+        for i in {1..10}
+        do
+            if is_running; then
+                break
+            fi
+            echo -n "."
+            sleep 1
+        done
+        echo
+        if ! is_running; then
+            echo "Unable to start, see $stdout_log and $stderr_log"
+            exit 1
+        fi
+        echo "Started"
+    fi
+    ;;
+    stop)
+    if is_running; then
+        echo -n "Stopping $name.."
+        kill `get_pid`
+        sleep 1
+        for i in {1..10}
+        do
+            if ! is_running; then
+                break
+            fi
+            echo -n "."
+            sleep 1
+        done
+        echo
+
+        if is_running; then
+            echo "Not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
+        else
+            echo "Stopped"
+            if [ -f "$pid_file" ]; then
+                rm "$pid_file"
+            fi
+        fi
+    else
+        echo "Not running"
+    fi
+    ;;
+    restart)
+    $0 stop
+    if is_running; then
+        echo "Unable to stop, will not attempt to start"
+        exit 1
+    fi
+    $0 start
+    ;;
+    status)
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
+        exit 1
+    fi
+    ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0
+
+

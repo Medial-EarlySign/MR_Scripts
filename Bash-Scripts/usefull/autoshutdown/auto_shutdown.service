@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Users Login For AutoShutdown
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/env python autoshutdown.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

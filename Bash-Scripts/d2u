@@ -1,0 +1,58 @@
+#!/bin/bash
+
+if [[ "$#" == 0 ]];	then
+	read -p 'Input windows path: ' -r path
+	# replace double quotes if the inputis like "W:\aaa\bbb" 
+	path="${path//\"/}"
+	# replace single quotes if the inputis like 'W:\aaa\bbb' 
+	path="${path//\'/}"
+else
+	# assuming that input is either enclosed in single quotes or uses \\ 
+	path=$1
+fi
+
+case "$path" in 
+	H:*)
+	WINDOWS_USERNAME=$(basename $HOME)
+	path=${path/#H://server/UsersData/$WINDOWS_USERNAME}
+  	path="${path//\\//}"
+  	;;
+	\\\\server\\LinuxShare\\*)
+        path=${path/#\\\\server\\LinuxShare//server/Linux}
+        path="${path//\\//}"
+        echo "$path"
+        ;;
+	I:*)
+	path=${path/#I://server/Linux}
+  	path="${path//\\//}"
+  	;;
+ 	P:*)
+	path=${path/#P://server/Products}
+  	path="${path//\\//}"
+  	;;
+  	T:*)
+	path=${path/#T://server/Data}
+  	path="${path//\\//}"
+  	;;
+   	U:*)
+	path=${path/#U://server/UsersData}
+  	path="${path//\\//}"
+  	;;
+    W:*)
+	path=${path/#W://server/Work}
+  	path="${path//\\//}"
+  	;;
+  	*)
+	echo "No matching Unix path found"
+	exit 1
+esac
+
+if [ -e "$path" ]; then
+    echo "$path"
+else 
+    echo "WARNING: Could not find this path in Unix. Make sure the input is surrounded by quotes." >&2
+    echo "$path"
+    exit 1
+fi
+
+

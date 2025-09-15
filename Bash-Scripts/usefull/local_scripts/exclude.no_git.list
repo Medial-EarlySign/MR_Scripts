@@ -1,0 +1,11 @@
+*.pyc
+*/Release/*
+*/ReleaseDLL/*
+*/Debug/*
+*/CMakeBuild/*
+*/LinuxSharedLib/Build/*
+*/LinuxSharedLib/Build.ubuntu/*
+*/.scannerwork
+*/bw-output
+*/build/
+*/.vs/*

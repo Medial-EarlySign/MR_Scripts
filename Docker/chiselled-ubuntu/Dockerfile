@@ -1,0 +1,34 @@
+#FROM amd64/golang:1.20 as chisel
+ARG UBUNTU_RELEASE=24.04
+ARG CHISEL_VERSION=1.1.0
+ARG TARGETARCH=amd64
+# This Dockerfile builds a minimal Ubuntu image using chisel.
+
+# Build the chiselled filesystem based on the desired slices.
+FROM ubuntu:$UBUNTU_RELEASE AS builder
+ARG UBUNTU_RELEASE
+ARG CHISEL_VERSION
+ARG TARGETARCH
+
+# Get chisel binary
+ADD https://github.com/canonical/chisel/releases/download/v${CHISEL_VERSION}/chisel_v${CHISEL_VERSION}_linux_$TARGETARCH.tar.gz chisel.tar.gz
+RUN tar -xvf chisel.tar.gz -C /usr/bin/
+RUN apt-get update \
+   && DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates
+
+WORKDIR /rootfs
+
+RUN chisel cut --release ubuntu-$UBUNTU_RELEASE --root /rootfs \
+   base-files_base \
+   base-files_release-info \
+   libgcc-s1_libs \
+   libc6_libs \
+   libstdc++6_libs \ 
+   libgomp1_libs \
+   bash_bins
+
+# Make the chiselled filesystem the only thing
+# present in the final image.
+FROM scratch
+COPY --from=builder /rootfs /
+

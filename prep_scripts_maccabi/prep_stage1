@@ -1,0 +1,136 @@
+echo 1; cat  2435.refmt.txt | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f1
+echo 2; cat  BMI_men_29-5-2011.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"BMI",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f2
+echo 3; cat  BMI_women_part1_25-5-2011.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"BMI",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f3
+echo 4; cat  BMI_women_part2_25-5-2011.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"BMI",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f4
+echo 5; cat  Basophils%_50236.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f5
+echo 6; cat  Biochem12.refmt.txt | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f6
+#echo 7; cat  CBC.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f7
+#echo 8; cat  CBC_0.refmt.txt | grep -v "#" | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f8
+echo 9; cat  Censor | awk '{print $1,"Censor",$4,$2*1000+$3}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f9
+echo 10; cat  Chimia.refmt.txt | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f10
+echo 11; cat  Eosinophils%_50235.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f11
+echo 12; cat  Ferritin.refmt.txt | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f12
+echo 13; cat  Hematocrit_50224.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f13
+echo 14; cat  MCH_50226.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f14
+echo 15; cat  MPV_50221.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f15
+echo 16; cat  Monocytes%_50234_new.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f16
+echo 17; cat  RBC_5041.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f17
+echo 18; cat  RDW_50228_NEW.refmt.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f18
+echo 19; cat  Smoking.refmt.txt | sed 's/ //g' | sed 's/\//\,/g' | awk -F"," '{print $1,"SMOKING",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f19
+echo 20; cat  Smoking_Status.refmt.txt | sed 's/ //g' | sed 's/\//\,/g' | awk -F"," '{print $1,"SMOKING",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f20
+echo 21; cat  biochem_2003 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f21
+echo 22; cat  biochem_2004 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f22
+echo 23; cat  biochem_2005 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f23
+echo 24; cat  biochem_2006 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f24
+echo 25; cat  biochem_2007 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f25
+echo 26; cat  biochem_2008 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f26
+echo 27; cat  biochem_2009 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f27
+echo 28; cat  biochem_2010 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f28
+echo 29; cat  biochem_2011 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f29
+echo 30; cat  ferritin_2003 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f30
+echo 31; cat  ferritin_2004 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f31
+echo 32; cat  ferritin_2005 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f32
+echo 33; cat  ferritin_2006 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f33
+echo 34; cat  ferritin_2007 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f34
+echo 35; cat  ferritin_2008 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f35
+echo 36; cat  ferritin_2009 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f36
+echo 37; cat  ferritin_2010 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f37
+echo 38; cat  ferritin_2011 | awk -F"\t" '{print $3,$8,$7,$9}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f38
+echo 39; cat  men_CBC_2003_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f39
+echo 40; cat  men_CBC_2004_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f40
+echo 41; cat  men_CBC_2005_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f41
+echo 42; cat  men_CBC_2006_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f42
+echo 43; cat  men_CBC_2007_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f43
+echo 44; cat  men_CBC_2008_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f44
+echo 45; cat  men_CBC_2009_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f45
+echo 46; cat  men_CBC_2010_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f46
+echo 47; cat  men_CBC_2011_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f47
+echo 48; cat  men_training_2003 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f48
+echo 49; cat  men_training_2004 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f49
+echo 50; cat  men_training_2005 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f50
+echo 51; cat  men_training_2006 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f51
+echo 52; cat  men_training_2007 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f52
+echo 53; cat  men_training_2008 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f53
+echo 54; cat  men_training_2009 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f54
+echo 55; cat  men_training_2010 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f55
+echo 56; cat  men_training_2011 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f56
+echo 57; cat  men_validation_2003 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f57
+echo 58; cat  men_validation_2004 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f58
+echo 59; cat  men_validation_2005 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f59
+echo 60; cat  men_validation_2006 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f60
+echo 61; cat  men_validation_2007 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f61
+echo 62; cat  men_validation_2008 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f62
+echo 63; cat  men_validation_2009 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f63
+echo 64; cat  men_validation_2010 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f64
+echo 65; cat  men_validation_2011 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f65
+echo 66; cat  smoking_stat_men_part1.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"SMOKING",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f66
+echo 67; cat  smoking_stat_men_part2.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"SMOKING",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f67
+echo 68; cat  smoking_stat_women_part1.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"SMOKING",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f68
+echo 69; cat  smoking_stat_women_part2.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"SMOKING",$5$4$3,$6}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f69
+echo 70; cat  smoking_stat_women_part3.csv | grep -v "#" | sed 's/\//\,/g' | awk -F"," '(NR>1){print $1,"SMOKING",$4$3$2,$5}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f70
+echo 71; cat  validation_cbc_men_2003_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f71
+echo 72; cat  validation_cbc_men_2004_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f72
+echo 73; cat  validation_cbc_men_2005_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f73
+echo 74; cat  validation_cbc_men_2006_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f74
+echo 75; cat  validation_cbc_men_2007_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f75
+echo 76; cat  validation_cbc_men_2008_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f76
+echo 77; cat  validation_cbc_men_2009_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f77
+echo 78; cat  validation_cbc_men_2010_27-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f78
+echo 79; cat  validation_cbc_men_2011_31-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f79
+echo 80; cat  validation_cbc_women_2003_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f80
+echo 81; cat  validation_cbc_women_2004_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f81
+echo 82; cat  validation_cbc_women_2005_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f82
+echo 83; cat  validation_cbc_women_2006_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f83
+echo 84; cat  validation_cbc_women_2007_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f84
+echo 85; cat  validation_cbc_women_2008_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f85
+echo 86; cat  validation_cbc_women_2009_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f86
+echo 87; cat  validation_cbc_women_2010_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f87
+echo 88; cat  validation_cbc_women_2011_25-7-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f88
+echo 89; cat  women_CBC_2003_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f89
+echo 90; cat  women_CBC_2004_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f90
+echo 91; cat  women_CBC_2005_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f91
+echo 92; cat  women_CBC_2006_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f92
+echo 93; cat  women_CBC_2007_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f93
+echo 94; cat  women_CBC_2008_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f94
+echo 95; cat  women_CBC_2009_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f95
+echo 96; cat  women_CBC_2010_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f96
+echo 97; cat  women_CBC_2011_filtered_22-6-11.txt | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f97
+echo 98; cat  women_training_2003 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f98
+echo 99; cat  women_training_2004 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f99
+echo 100; cat  women_training_2005 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f100
+echo 101; cat  women_training_2006 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f101
+echo 102; cat  women_training_2007 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f102
+echo 103; cat  women_training_2008 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f103
+echo 104; cat  women_training_2009 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f104
+echo 105; cat  women_training_2010 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f105
+echo 106; cat  women_training_2011 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f106
+echo 107; cat  women_validation_2003 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f107
+echo 108; cat  women_validation_2004 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f108
+echo 109; cat  women_validation_2005 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f109
+echo 110; cat  women_validation_2006 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f110
+echo 111; cat  women_validation_2007 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f111
+echo 112; cat  women_validation_2008 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f112
+echo 113; cat  women_validation_2009 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f113
+echo 114; cat  women_validation_2010 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f114
+echo 115; cat  women_validation_2011 | awk -F"\t" '{print $1,$3,$4,$8}'  | sort -k1n -k2n -k3n --buffer-size=50% > stage1/f115
+echo 116; ./parse_lab_results.pl LabResult.txt | awk -F"," '{print $1,$2,$3,$4}' | sed 's/\-/ /g' | awk '($1>0){print $1,$2,$3$4$5,$7}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f116
+echo 117; cat Height\&Weight.txt | awk '(NR>1 && $1>0){print $1,$2,$3,$4}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f117
+## new batch
+echo 118; cat Hospitalizations.txt | awk '(NR>1){print $1,"Hospitalization",$2,$4}' | sort -k1n -k3n --buffer-size 50% | awk '($1>0)' > stage1/f118
+echo 119; cat colonoscopys_maccabi_2014_CONVERTED.txt | awk '(NR>2){print $1,"Colonscopy",$5,$7}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f119
+echo 120; cat BIO.txt | awk -F"\t" '(NR>1){print $1,$2,$4,$5}' | sed 's/\-/ /g' | awk '{print $1,$2,$3$4$5,$7}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f120
+echo 121; cat /cygdrive/t/Maccabi_JUL2014/RCVD_09JUL2014/CRC_2014.txt | awk -F"\t" '(NR>1) {print $1,$2,$4,$5}' | sed 's/\-/ /g' | awk '{print $1,$2,$3$4$5,$7}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f121
+echo 122; cat /cygdrive/t/Maccabi_JUL2014/RCVD_16JUL2014/Ferritin\ lab\ tests.txt | awk -F"\t" '(NR>1) {print $1,$2,$4,$5}' | sed 's/\-/ /g' | awk '{print $1,$2,$3$4$5,$7}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f122
+echo 123; cat /cygdrive/t/Maccabi_JUL2014/RCVD_17FEB2015/CRP_G6PD_TIBC_2015-FEB-17.txt | awk '(NR>1){print $1,$2,$3,$5}' | sed 's/\// /g' | awk '{print $1,$2,$5$4$3,$6}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f123
+echo 124; cat /cygdrive/t/Maccabi_JUL2014/RCVD_17JUL2014/BMI.txt | awk '(NR>1){print $1,"BMI",$3,$2}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f124
+echo 125; cat /cygdrive/t/Maccabi_JUL2014/RCVD_17JUL2014/CBC1/Basophils#_50241.txt | awk '(NR>1){print $1,$2,$3,$4}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f125
+echo 126; cat /cygdrive/t/Maccabi_JUL2014/RCVD_17JUL2014/CBC2/Eosinophils#_50230.txt | awk '(NR>1){print $1,$2,$3,$4}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f126
+echo 127; cat /cygdrive/t/Maccabi_JUL2014/RCVD_17JUL2014/CBC2/Monocytes#_50239.txt | awk '(NR>1){print $1,$2,$3,$4}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f127
+echo 128; cat /cygdrive/t/Maccabi_JUL2014/RCVD_31JUL2014/Status2/BMI.txt | awk '(NR>1){print $1,"BMI",$3,$2}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f128
+echo 129; cat /cygdrive/t/Maccabi_JUL2014/RCVD_31JUL2014/Status2/CRC.txt | awk -F"\t" '(NR>1) {print $1,$2,$5,$6}' | sed 's/\-/ /g' | awk '{print $1,$2,$3$4$5,$7}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f129
+echo 130; cat  /cygdrive/t/Maccabi_JUL2014/RCVD_31JUL2014/Status2/Smoking.txt | awk '(NR>1){print $1,"SMOKING",$3,$2}' | sed 's/\-//g' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f130
+echo 131; ./parse_fecal.pl /cygdrive/t/Maccabi_JUL2014/RCVD_16JUL2014/Fical_test_2014.txt 0 3 4 | grep -v "^##" > stage1/f131
+echo 132; ./parse_fecal.pl /cygdrive/t/Maccabi_JUL2014/RCVD_31JUL2014/Status2/Fical_Status2_CONVERTED.txt 0 4 3 | grep -v "^##" > stage1/f132
+echo 133; ./parse_urine.pl Uran_Lab_Test_2001_2014.txt | awk -F"," '{print $1,$2,$3,$4}' | sed 's/\-/ /g' | awk '($1>0){print $1,$2,$3$4$5,$7}' | sort -k1n -k2n -k3n --buffer-size 50% > stage1/f133
+echo "death"; cat Censor | awk '$2==2 && $3==8' | awk '{print $1,"DEATH",$NF}' > stage1/death
+echo "gender_byear"; cat  | awk '{print $1,"BYEAR",$2; g=1; if ($3=="F") {g=2}; print $1,"GENDER",g}' > stage1/byear_gender

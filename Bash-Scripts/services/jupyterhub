@@ -1,0 +1,116 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          Medial EarlySign
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     4 5
+# Default-Stop:
+# Short-Description:  Activates/Deactivates jupyterhub notebook
+### END INIT INFO
+
+set -e
+
+PY_ENV=/nas1/Work/python-env/python312
+name=`basename $0`
+stdout_log="/var/log/$name.log"
+stderr_log="/var/log/$name.err"
+
+activate_cmd="export MR_ROOT=/nas1/UsersData/git/MR && source $PY_ENV/bin/activate"
+cmd="$activate_cmd && cd /nas1/Work/Shared/notebooks && export JUPYTERHUB_API_TOKEN="12345679" && $PY_ENV/bin/jupyter-labhub --allow-root --ip 0.0.0.0 --port 9001 --no-browser &"
+
+#Create Jupyter dir if needed
+bash -c "$activate_cmd && mkdir -p \$JUPYTER_RUNTIME_DIR"
+
+cmd=$activate_cmd'; export PATH='$PY_ENV'/bin:$PATH:/nas1/Work/nodejs/bin; export PKG_CONFIG_PATH=/opt/medial/dist/usr/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}; export JUPYTER_RUNTIME_DIR=/var/opt/medial/dist/jupyter_kernels; export LD_LIBRARY_PATH=/server/Work/Libs/Boost/boost_1_85_0/installation/lib:'$PY_ENV'/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}} ; '$PY_ENV'/bin/jupyter-labhub --allow-root --id=0.0.0.0 --port 9001 --no-browser & '
+user="root"
+
+get_pid() {
+    PID_F=$(ps -ef | egrep "jupyter-labhub" | grep -v grep | awk '{print $2}')
+    echo $PID_F
+}
+
+is_running() {
+    #[ -f "$pid_file" ] && ps `get_pid` > /dev/null 2>&1
+	PID_F=$(ps -ef | egrep "jupyter-labhub" | grep -v grep | awk '{print $2}')
+     [ ! -z "$PID_F" ]
+}
+
+case "$1" in
+    start)
+    if is_running; then
+        echo "Already started"
+    else
+        echo -n "Starting $name ."
+	#echo -e "Run command: \n$cmd"
+        if [ -z "$user" ]; then
+            sudo bash -c "$cmd" >> "$stdout_log" 2>> "$stderr_log"
+        else
+            sudo -i -u "$user" bash -c "$cmd" >> "$stdout_log" 2>> "$stderr_log"
+        fi
+        for i in {1..10}
+        do
+            if is_running; then
+                break
+            fi
+            echo -n "."
+            sleep 1
+        done
+        echo
+        if ! is_running; then
+            echo "Unable to start, see $stdout_log and $stderr_log"
+            exit 1
+        fi
+        echo "Started"
+    fi
+    ;;
+    stop)
+    if is_running; then
+        echo -n "Stopping $name.."
+        kill `get_pid`
+        sleep 1
+        for i in {1..10}
+        do
+            if ! is_running; then
+                break
+            fi
+            echo -n "."
+            sleep 1
+        done
+        echo
+
+        if is_running; then
+            echo "Not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
+        else
+            echo "Stopped"
+        fi
+    else
+        echo "Not running"
+    fi
+    ;;
+    restart)
+    $0 stop
+    if is_running; then
+        echo "Unable to stop, will not attempt to start"
+        exit 1
+    fi
+    $0 start
+    ;;
+    status)
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
+        exit 1
+    fi
+    ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0
+
+

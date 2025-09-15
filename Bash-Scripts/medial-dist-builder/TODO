@@ -1,0 +1,35 @@
+* use https://github.com/wolever/pip2pi to set a local repo
+* enable env creating for packages: gdbgui turicreate
+* create a process for package creation
+* fix R kernel for jupyter
+* change PIP_INSTALL_python* to PIP_DOWNLOAD_..
+* info for requirements function
+* unify SVER,SNAM ... etc
+* redirect pip installation output to log too 
+* redirect gdbgui installation output to log too 
+* redirect nodejs untar error  to log too , it makes noise
+* install yum package openldap-devel.x86_64 of old version on nodes
+* in python 27+36, abstract-rendering should be installed after site install
+* add more global package to nodejs
+* automatic load of user's compiled medpython
+* R is missing libssh2-devel, libgit2-devel
+
+** package 'git2r' successfully unpacked and MD5 sums checked
+configure: WARNING:
+  ---------------------------------------------
+   Unable to find the LibSSH2 library on this
+   system. Building a version without support
+   for SSH transport.
+
+   To build with SSH support, please install:
+     libssh2-1-dev (package on e.g. Debian and Ubuntu)
+     libssh2-devel (package on e.g. Fedora, CentOS and RHEL)
+     libssh2 (Homebrew package on OS X)
+   and try again.
+
+   If the LibSSH2 library is installed on
+   your system but the git2r configuration
+   is unable to find it, you can specify
+   the include and lib path to LibSSH2 with:
+   R CMD INSTALL git2r --configure-vars='LIBS=-L/path/to/libs CPPFLAGS=-I/path/to/headers'
+

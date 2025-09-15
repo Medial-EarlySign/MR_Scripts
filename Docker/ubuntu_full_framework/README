@@ -1,0 +1,16 @@
+#To generate mes_full.tar, please run: "full_pack_all.sh"
+
+#On external - to create image. cd to this directory!
+docker build -t medial_dev --no-cache  --progress=plain . 2>&1 | tee outputs/build.log
+docker save -o outputs/medial_dev.docker medial_dev && tar -cvjf outputs/medial_dev.tar.bz2 -C outputs medial_dev.docker
+
+# Import in another machine after transfer and untar file
+docker image load -i /nas1/Work/docker_images/medial_dev.docker
+# Add "--network host" to run command if there are some restrication firewall rules that host machine is able to access
+docker run --name medial_dev_container  --privileged -idt -p 7001-7100:7001-7100 medial_dev /bin/bash
+docker exec -it medial_dev_container  /bin/bash
+
+# Remove/Reload:
+docker stop medial_dev_container 
+docker rm medial_dev_container
+docker image rm medial_dev # To remove completely the image

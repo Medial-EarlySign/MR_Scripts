@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  read -r input_from_stdin
+  arg1="$input_from_stdin"
+else
+  arg1="$1"
+fi
+
+UNIX_PATH=$(realpath $arg1)
+
+case "$UNIX_PATH" in 
+	/nas1/Installations/*)
+	path="I:${UNIX_PATH#/nas1/Installations}"
+  	path="${path//\//\\}"
+  	echo "$path"
+  	;;
+        /server/Linux/*)
+        path="\\\\server\\LinuxShare${UNIX_PATH#/nas1/Linux}"
+        path="${path//\//\\}"
+        echo "$path"
+        ;;
+	/nas1/Products/*)
+	path="P:${UNIX_PATH#/nas1/Products}"
+  	path="${path//\//\\}"
+  	echo "$path"
+  	;;
+	/nas1/Data/*)
+	path="T:${UNIX_PATH#/nas1/Data}"
+  	path="${path//\//\\}"
+  	echo "$path"
+  	;;
+	/nas1/UsersData/*)
+	path="U:${UNIX_PATH#/nas1/UsersData}"
+  	path="${path//\//\\}"
+  	echo "$path"
+  	;;
+	/nas1/Work/*)
+	path="W:${UNIX_PATH#/nas1/Work}"
+  	path="${path//\//\\}"
+  	echo "$path"
+  	;;
+*)
+  echo "No matching Windows path found"
+esac

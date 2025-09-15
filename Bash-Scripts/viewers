@@ -1,0 +1,74 @@
+#!/bin/bash
+
+ACTION=${1-help}
+ALLOWED_NODE="node-04"
+
+if [ ${ACTION} == "start" ]; then
+	#Run in node-04 only!
+	if [ $HOSTNAME == $ALLOWED_NODE ] ; then
+
+		VIEWER_SCRIPT=`ps -ef | grep "viewers_runner.py" | grep -v grep`
+		if [ -z "$VIEWER_SCRIPT" ] ; then
+			echo "Run viewer detched from this ssh session"
+			screen -S viewers -dm $MR_ROOT'/Projects/Scripts/Bash-scripts/run_viewers_with_env.sh'
+		else
+			echo "Viewers are already Up"
+		fi
+
+	else
+		echo "Please run from $ALLOWED_NODE"
+	fi
+elif [ ${ACTION} == "debug" ]; then
+	if [ $HOSTNAME == $ALLOWED_NODE ] ; then
+
+		VIEWER_SCRIPT=`ps -ef | grep "viewers_runner.py" | grep -v grep`
+		if [ -z "$VIEWER_SCRIPT" ] ; then
+			$MR_ROOT/Projects/Scripts/Python-scripts/viewers_runner.py
+		else
+			echo "Viewers are already Up"
+		fi
+	else
+		echo "Please run from $ALLOWED_NODE"
+	fi
+elif [ ${ACTION} == "stop" ]; then
+	#to close all:
+	if [ $HOSTNAME == $ALLOWED_NODE ] ; then
+		echo "close all viewers"
+		MAIN_PID=$(ps -fe | grep viewers_runner.py | grep -v grep | awk '{print $2}')
+		if [ ! -z "$MAIN_PID" ]; then
+			echo "Closes main ${MAIN_PID}"
+			sudo kill -TERM $MAIN_PID
+		else
+			echo "Can't find main process"
+		fi
+		sudo pkill -TERM SimpleHttpServe
+	else
+		echo "Please run from $ALLOWED_NODE"
+	fi
+elif [ ${ACTION} == "status" ]; then
+	if [ $HOSTNAME == $ALLOWED_NODE ] ; then
+		VIEWER_SCRIPT=`ps -ef | grep "viewers_runner.py" | grep -v grep`
+		if [ ! -z "$VIEWER_SCRIPT" ] ; then
+			echo "Viewers are up"
+		else
+			echo "Viewers are down"
+		fi
+	else
+		echo "Please run from $ALLOWED_NODE"
+	fi
+elif [ ${ACTION} == "edit" ]; then
+	vim $MR_ROOT/Projects/Scripts/Python-scripts/viewers_config.py
+elif [ ${ACTION} == "attach" ]; then
+	screen -r viewers
+elif [ ${ACTION} == "help" ]; then
+	echo "Options Are: [start|stop|status|edit|debug|attach|help]"
+	echo "help - prints this help"
+	echo "start - starts all viewers if not already running"
+	echo "stop - stops all viewers if running"
+	echo "status - print status if running"
+	echo "edit - opens configuration file in vim to edit viewers"
+	echo "debug - run the app in current shell that you can see outputs"
+	echo "attach - attaches screen session with the viewers app. To exit, press CTRL+A,CTRL+D"
+else
+	echo "Unknown action '${ACTION}', Options are: [start|stop|status|edit|debug|attach|help]"
+fi

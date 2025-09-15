@@ -1,0 +1,3 @@
+sudo bash -c 'echo "|/usr/libexec/abrt-hook-ccpp %s %c %p %u %g %t e" > /proc/sys/kernel/core_pattern'
+#check /etc/abrt
+#change python in /usr/bin/abrt-action-list-dsos

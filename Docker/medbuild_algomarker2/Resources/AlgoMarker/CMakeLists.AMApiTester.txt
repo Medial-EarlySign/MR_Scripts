@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 2.8)
+
+set(H_FILES 
+)
+			
+set(SRC_FILES
+	AMApiTester.cpp
+)
+
+set(STATIC_LIBS_LIST
+	/build/lib/lib_lightgbm.a
+	/build/lib/libboost_filesystem.a
+	/build/lib/libboost_program_options.a
+	/build/lib/libboost_regex.a
+	/build/lib/libboost_system.a
+	/build/lib/libdmlc.a
+	/build/lib/libxgboost.a
+	/build/lib/librabit.a
+)
+
+add_executable(AMApiTester ${H_FILES} ${SRC_FILES})
+#target_link_libraries(AMApiTester -Wl,--start-group DynAMWrapper InfraMed Logger Mars MedAlgo MedEmbed MedIO MedMat MedProcessTools MedSparseMat MedSplit MedStat MedTime MedUtils QRF SerializableObject TQRF gbm micNet -Wl,--end-group libboost_regex.so libboost_program_options.so libboost_filesystem.so libboost_system.so /server/Work/SharedLibs/linux/lib64/${CMAKE_BUILD_TYPE}/libxgboost.so /server/Work/SharedLibs/linux/lib64/${CMAKE_BUILD_TYPE}/lib_lightgbm_2.2.3.so)
+
+target_link_libraries(AMApiTester -Wl,-Bstatic,--whole-archive CommonTestingTools DynAMWrapper InfraMed Logger Mars MedAlgo MedEmbed MedIO MedMat MedProcessTools MedSparseMat MedSplit MedStat MedTime MedUtils QRF SerializableObject TQRF gbm micNet ${STATIC_LIBS_LIST} -Wl,-no-whole-archive -Wl,-Bdynamic -licudata -licui18n -licuuc -ldl)
+
+#include("$ENV{MR_ROOT}/Projects/Resources/CMakeUtils/CMakePrintProperties.txt")
