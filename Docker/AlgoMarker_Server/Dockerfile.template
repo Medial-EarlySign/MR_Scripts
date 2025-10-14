@@ -1,0 +1,8 @@
+FROM chiselled-ubuntu:latest
+
+# Please use the create_image.sh script to create the image
+
+COPY data /
+
+EXPOSE ${PORT}
+ENTRYPOINT [ "/app/AlgoMarker_Server", "--no_print", "1", "--algomarker_path" ,"${AM_CONFIG_PATH}", "--port", "${PORT}"]
