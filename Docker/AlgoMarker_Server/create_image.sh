@@ -26,7 +26,12 @@ if [ ! -f "${AM_CONFIG_PATH}" ]; then
 fi
 AM_DIR=$(dirname "$AM_CONFIG_PATH")
 if [ ! -f "${AM_DIR}/lib/libdyn_AlgoMarker.so" ]; then
-    echo "Error: $AM_CONFIG_PATH/lib/libdyn_AlgoMarker.so does not exist. Please put the library there."
+    echo "Error: $AM_DIR/lib/libdyn_AlgoMarker.so does not exist. Please put the library there."
+    exit 1
+fi
+ALGO_SERVER_PATH=$(realpath "${AM_DIR}/../AlgoMarker_Server")
+if [ ! -f "${ALGO_SERVER_PATH}" ]; then
+    echo "Error: Missing AlgoMarker_Server binary in ${ALGO_SERVER_PATH}. Please put the binary there."
     exit 1
 fi
 
