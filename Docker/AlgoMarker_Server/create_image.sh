@@ -5,11 +5,13 @@ CURR_DIR=${0%/*}
 cd ${CURR_DIR}
 
 AM_CONFIG_PATH=${1}
-PORT=${2-1234}
+AM_IMAGE_NAME=${2-test_app}
+PORT=${3-1234}
 
 if [ -z ${AM_CONFIG_PATH} ]; then
-    echo "Usage: $0 <AM_CONFIG_PATH> [PORT]"
+    echo "Usage: $0 <AM_CONFIG_PATH> [IMAGE_NAME] [PORT]"
     echo "  AM_CONFIG_PATH: Path to AlgoMarker config path (e.g., /path/to/.amconfig)"
+    echo "  IMAGE_NAME: (Optional) Name for the Docker image (default: test_app)"
     echo "  PORT: (Optional) Port number for the server (default: 1234)"
     exit 1
 fi
@@ -32,4 +34,4 @@ fi
 sed -e "s|\${AM_CONFIG_PATH}|/${AM_CONFIG_PATH_DOCKER}|g" -e "s|\${PORT}|${PORT}|g" Dockerfile.template > Dockerfile
 
 # Run build
-podman build -t lgiflag_app --no-cache .
+podman build -t ${AM_IMAGE_NAME} --no-cache .

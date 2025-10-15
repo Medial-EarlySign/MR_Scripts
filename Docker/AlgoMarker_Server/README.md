@@ -10,16 +10,16 @@
 ### Step 2: Build and Run Docker
 
 #### Build the Docker image
-Edit the Dockerfile and put AM_NAME, AM_VERSION directly.
-It doesn't work with ENTRYPOINT.
+Please use the script `create_image.sh` and provide it with the path to the AM_CONFIG file of the AlgoMarker and choose an IMAGE_NAME to name this image.
+You can optionally pass also the port number as 3rd argument. Default is 1234
 
 ```bash
-docker build -t lungflag_app --no-cache .
+./create_image.sh data/app/path_to_am_config_file  IMAGE_NAME
 ```
 
 #### Run the Docker container
 ```bash
-docker run --name lungflag_container -p 1234:1234 -id lungflag_app
+podman run --name X_container -p 1234:1234 -id IMAGE_NAME
 ```
 Your application should now be accessible on port 1234.
 
@@ -28,19 +28,21 @@ Your application should now be accessible on port 1234.
 
 ##### See logs:
 ```bash
-docker logs lungflag_container
+podman logs X_container
 ```
 
 ##### Access the running container
 ```bash
-docker exec -it lungflag_container /bin/bash
+podman exec -it X_container /bin/bash
 ```
 ##### stop and remove container
 ```bash
-docker stop lungflag_container && docker rm lungflag_container
+podman stop X_container && podman rm X_container
 ```
 
 ##### Remove the Docker image
 ```bash
-docker image rm lungflag_app
+podman image rm IMAGE_NAME
 ```
+
+The commands are also fully compitible for `docker`
