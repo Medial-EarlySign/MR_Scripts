@@ -5,9 +5,6 @@ SETUP_PATH=/earlysign/app
 
 mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 
-mkdir -p /root/.ssh
-ssh-keyscan gitlab.com >> /root/.ssh/known_hosts
-
 apt-get install python3-pip -y
 ln -s $(which python3) /usr/bin/python
 python -m pip install numpy

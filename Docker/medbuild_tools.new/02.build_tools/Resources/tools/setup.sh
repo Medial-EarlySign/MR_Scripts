@@ -5,9 +5,6 @@ SETUP_PATH=/earlysign/app
 
 mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 
-mkdir -p /root/.ssh
-ssh-keyscan gitlab.com >> /root/.ssh/known_hosts
-
 git clone https://github.com/Medial-EarlySign/MR_Tools.git
 git clone https://github.com/Medial-EarlySign/MR_LIBS.git
 
