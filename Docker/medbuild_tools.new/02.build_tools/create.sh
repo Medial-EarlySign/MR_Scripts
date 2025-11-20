@@ -1,5 +1,6 @@
 #!/bin/bash
-podman build -t ubuntu_tools .
+#podman build -t ubuntu_tools .
+podman build -t manylinux_tools .
 
 # Run
 # podman run --name test -it --rm ubuntu_tools  /bin/bash

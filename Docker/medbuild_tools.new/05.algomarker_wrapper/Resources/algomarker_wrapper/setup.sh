@@ -7,6 +7,7 @@ mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 
 git clone https://github.com/Medial-EarlySign/MR_Tools.git
 
-sed -i 's|#set(BOOST_ROOT.*|set(BOOST_ROOT "/earlysign/Boost")|g' MR_Tools/AlgoMarker_python_API/ServerHandler/CMakeLists.txt
+#sed -i 's|#set(BOOST_ROOT.*|set(BOOST_ROOT "/earlysign/Boost")|g' MR_Tools/AlgoMarker_python_API/ServerHandler/CMakeLists.txt
+export BOOST_ROOT="/earlysign/Boost"
 
 MR_Tools/AlgoMarker_python_API/ServerHandler/compile.sh

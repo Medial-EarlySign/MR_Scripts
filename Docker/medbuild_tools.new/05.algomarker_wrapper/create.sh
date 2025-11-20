@@ -1,5 +1,6 @@
 #!/bin/bash
-podman build -t ubuntu_algomarker_wrapper .
+#podman build -t ubuntu_algomarker_wrapper .
+podman build -t manylinux_algomarker_wrapper .
 
 # Run
 # podman run --name test -it --rm ubuntu_algomarker_wrapper  /bin/bash

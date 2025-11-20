@@ -1,5 +1,6 @@
 #!/bin/bash
-podman build -t ubuntu_medpython .
+#podman build -t ubuntu_medpython .
+podman build -t manylinux_medpython .
 
 # Run
 # podman run --name test -it --rm ubuntu_medpython  /bin/bash

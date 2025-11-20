@@ -5,13 +5,18 @@ SETUP_PATH=/earlysign/app
 
 mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 
-apt-get install python3-pip -y
-ln -s $(which python3) /usr/bin/python
+# apt-get install python3-pip -y
+# ln -s $(which python3) /usr/bin/python
+
+ln -sf $(which python3.12) /usr/bin/python
 python -m pip install numpy
 
 git clone https://github.com/Medial-EarlySign/MR_LIBS.git
 
-sed -i 's|#set(BOOST_ROOT.*|set(BOOST_ROOT "/earlysign/Boost")|g' MR_LIBS/Internal/MedPyExport/generate_binding/CMakeLists.txt
+#sed -i 's|#set(BOOST_ROOT.*|set(BOOST_ROOT "/earlysign/Boost")|g' MR_LIBS/Internal/MedPyExport/generate_binding/CMakeLists.txt
+export BOOST_ROOT="/earlysign/Boost"
+
+sed -i 's|cmake |cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_CXX_FLAGS="-std=c++17" |g' MR_LIBS/Internal/MedPyExport/generate_binding/make-simple.sh
 
 MR_LIBS/Internal/MedPyExport/generate_binding/make-simple.sh
 

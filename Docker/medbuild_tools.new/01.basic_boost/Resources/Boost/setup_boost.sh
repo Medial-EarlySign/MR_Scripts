@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Download Boost
-VERSION=1.85.0
+VERSION=1.89.0
 VERSION_2=$(echo ${VERSION} | awk -F. '{print $1 "_" $2 "_" $3}')
 wget https://archives.boost.io/release/${VERSION}/source/boost_${VERSION_2}.tar.bz2
 

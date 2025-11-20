@@ -1,5 +1,6 @@
 #!/bin/bash
-podman build -t ubuntu_algomarker .
+#podman build -t ubuntu_algomarker .
+podman build -t manylinux_algomarker .
 
 # Run
 # podman run --name test -it --rm ubuntu_algomarker  /bin/bash
