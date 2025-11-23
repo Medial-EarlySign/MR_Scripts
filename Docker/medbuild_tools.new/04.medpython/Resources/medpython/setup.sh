@@ -10,12 +10,19 @@ mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 
 git clone https://github.com/Medial-EarlySign/MR_LIBS.git
 git clone https://github.com/Medial-EarlySign/MR_Tools.git
-cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra MR_LIBS/Internal/MedPyExport/generate_binding/src/
+mkdir -p MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/*.py MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/tests MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/rep_signals MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/data_fetcher MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/dicts MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
 # add pandas, ipython, plotly to requirements
 
 export BOOST_ROOT="/earlysign/Boost"
 
 sed -i 's|^dependencies = \[|dependencies = ["pandas", "plotly", "ipython",|g' MR_LIBS/Internal/MedPyExport/generate_binding/pyproject.toml
+echo -e "# MANIFEST.in\nrecursive-include src/ETL_Infra/dicts *\nrecursive-include src/ETL_Infra/rep_signals *" > MR_LIBS/Internal/MedPyExport/generate_binding/MANIFEST.in
+sed -i 's|zip_safe=False,|zip_safe=False, include_package_data=True,|g' MR_LIBS/Internal/MedPyExport/generate_binding/setup.py
 # sed -i 's|cmake |cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.10 |g' MR_LIBS/Internal/MedPyExport/generate_binding/make-simple.sh
 #-DSWIG_EXECUTABLE=/opt/python/cp314-cp314/bin/swig
 #-DPython3_EXECUTABLE=
