@@ -47,7 +47,6 @@ GIT_COMMIT_HASH=$(git rev-parse HEAD)
 version_txt=$(date +'Commit_'${GIT_COMMIT_HASH}'_Build_On_%Y%m%d_%H:%M:%S')
 set -e
 echo -e "Git version info:\n${version_txt}"
-touch ${CURRENT_DIR}/../../MedUtils/MedUtils/MedGitVersion.h
 export GIT_HEAD_VERSION=$version_txt 
 
 mkdir -p wheelhouse
