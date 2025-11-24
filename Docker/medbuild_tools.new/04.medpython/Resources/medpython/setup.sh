@@ -20,9 +20,9 @@ cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/dicts MR_LIBS/Internal/MedPyExport
 
 export BOOST_ROOT="/earlysign/Boost"
 
-sed -i 's|^dependencies = \[|dependencies = ["pandas", "plotly", "ipython",|g' MR_LIBS/Internal/MedPyExport/generate_binding/pyproject.toml
-echo -e "# MANIFEST.in\nrecursive-include src/ETL_Infra/dicts *\nrecursive-include src/ETL_Infra/rep_signals *" > MR_LIBS/Internal/MedPyExport/generate_binding/MANIFEST.in
-sed -i 's|zip_safe=False,|zip_safe=False, include_package_data=True,|g' MR_LIBS/Internal/MedPyExport/generate_binding/setup.py
+#sed -i 's|^dependencies = \[|dependencies = ["pandas", "plotly", "ipython",|g' MR_LIBS/Internal/MedPyExport/generate_binding/pyproject.toml
+#echo -e "# MANIFEST.in\nrecursive-include src/ETL_Infra/dicts *\nrecursive-include src/ETL_Infra/rep_signals *" > MR_LIBS/Internal/MedPyExport/generate_binding/MANIFEST.in
+#sed -i 's|zip_safe=False,|zip_safe=False, include_package_data=True,|g' MR_LIBS/Internal/MedPyExport/generate_binding/setup.py
 # sed -i 's|cmake |cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.10 |g' MR_LIBS/Internal/MedPyExport/generate_binding/make-simple.sh
 #-DSWIG_EXECUTABLE=/opt/python/cp314-cp314/bin/swig
 #-DPython3_EXECUTABLE=
@@ -41,6 +41,14 @@ PYBINARIES=(
 )
 
 cd MR_LIBS/Internal/MedPyExport/generate_binding
+
+set +e
+GIT_COMMIT_HASH=$(git rev-parse HEAD)
+version_txt=$(date +'Commit_'${GIT_COMMIT_HASH}'_Build_On_%Y%m%d_%H:%M:%S')
+set -e
+echo -e "Git version info:\n${version_txt}"
+touch ${CURRENT_DIR}/../../MedUtils/MedUtils/MedGitVersion.h
+export GIT_HEAD_VERSION=$version_txt 
 
 mkdir -p wheelhouse
 mkdir -p dist
