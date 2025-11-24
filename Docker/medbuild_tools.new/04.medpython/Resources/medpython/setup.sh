@@ -70,7 +70,8 @@ for PYBIN in "${PYBINARIES[@]}"; do
     rm dist/*.whl
 done
 
-
+# Generate dissourcet:
+${PYBINARIES[0]} -m build --sdist --outdir wheelhouse/
 
 # Prepare executables to be able to run with "lib" defined as relative path:
 #tar -cvjf /earlysign/all_tools.tar.bz2 -C /earlysign/app/MR_Tools/AllTools/Linux Release

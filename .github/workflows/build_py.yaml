@@ -1,0 +1,43 @@
+name: Generate PyPi package of Medial EarlySign
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/medpython # Replace with your PyPI project name
+    permissions:
+      contents: read
+      id-token: write # Required for trusted publishing
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Prepare ubuntu environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install podman -y
+      
+    - name: Create Basic Boost Image
+      run: Docker/medbuild_tools.new/01.basic_boost/create.sh
+
+    - name: Create Python Images
+      run: Docker/medbuild_tools.new/04.medpython/create.sh
+
+    - name: Get Artifacts from ManyLinux
+      run: |
+        podman run --rm -dt --name medpython_cont manylinux_medpython bash
+        podman cp medpython_cont:/earlysign/app/MR_LIBS/Internal/MedPyExport/generate_binding/wheelhouse .
+        podman stop medpython_cont
+
+    - name: Upload to PyPi
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages_dir: wheelhouse/
+        # Use a secret for the token if not using trusted publishing
+        # password: ${{ secrets.PYPI_API_TOKEN }}
+        # For trusted publishing, no token is needed here.
