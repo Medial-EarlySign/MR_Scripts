@@ -44,7 +44,8 @@ cd MR_LIBS/Internal/MedPyExport/generate_binding
 
 set +e
 GIT_COMMIT_HASH=$(git rev-parse HEAD)
-version_txt=$(date +'Commit_'${GIT_COMMIT_HASH}'_Build_On_%Y%m%d_%H:%M:%S')
+vesrion_in_toml=$(cat pyproject.toml | grep version | cut -d " " -f 3 | sed 's|"||g')
+version_txt=$(date +'Version_'${vesrion_in_toml}'_Commit_'${GIT_COMMIT_HASH}'_Build_On_%Y%m%d_%H:%M:%S')
 set -e
 echo -e "Git version info:\n${version_txt}"
 export GIT_HEAD_VERSION=$version_txt 
@@ -71,7 +72,7 @@ for PYBIN in "${PYBINARIES[@]}"; do
 done
 
 # Generate dissourcet:
-${PYBINARIES[0]} -m build --sdist --outdir wheelhouse/
+${PYBINARIES[-1]} -m build --sdist --outdir wheelhouse/
 
 # Prepare executables to be able to run with "lib" defined as relative path:
 #tar -cvjf /earlysign/all_tools.tar.bz2 -C /earlysign/app/MR_Tools/AllTools/Linux Release
