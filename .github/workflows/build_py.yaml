@@ -23,10 +23,14 @@ jobs:
         sudo apt-get install podman -y
       
     - name: Create Basic Boost Image
-      run: Docker/medbuild_tools.new/01.basic_boost/create.sh
+      run: |
+        cd Docker/medbuild_tools.new/01.basic_boost
+        ./create.sh
 
     - name: Create Python Images
-      run: Docker/medbuild_tools.new/04.medpython/create.sh
+      run: |
+        cd Docker/medbuild_tools.new/04.medpython
+        ./create.sh
 
     - name: Get Artifacts from ManyLinux
       run: |
