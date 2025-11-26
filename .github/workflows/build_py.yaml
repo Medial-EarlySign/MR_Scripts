@@ -76,7 +76,7 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages_dir: dist/
+          packages-dir: dist/
         # Use a secret for the token if not using trusted publishing
         # password: ${{ secrets.PYPI_API_TOKEN }}
         # For trusted publishing, no token is needed here.
