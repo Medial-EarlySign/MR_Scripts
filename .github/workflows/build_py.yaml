@@ -5,11 +5,15 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   build_python_packages:
     name: Build Wheels (Manylinux)
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/medpython
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -48,35 +52,8 @@ jobs:
           podman run --rm -dt --name medpython_cont manylinux_medpython bash
           podman cp medpython_cont:/earlysign/app/MR_LIBS/Internal/MedPyExport/generate_binding/wheelhouse/. dist/
           podman stop medpython_cont
-
-      - name: Upload Wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels
-          path: dist/*.whl
-          retention-days: 1
-
-  publish:
-    name: Upload to PyPi
-    needs: [build_python_packages]
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/project/medpython
-    permissions:
-      id-token: write
-
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: pypi-artifacts
-          path: dist
-
+          
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
-        # Use a secret for the token if not using trusted publishing
-        # password: ${{ secrets.PYPI_API_TOKEN }}
-        # For trusted publishing, no token is needed here.
