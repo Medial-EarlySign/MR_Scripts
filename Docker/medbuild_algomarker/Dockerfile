@@ -20,7 +20,7 @@ RUN echo "(II) INFO: Compiling Boost" && \
 
 
 #RUN echo "(II) INFO: Cloning git " && \
-#   cd /earlysign && git clone git@github.com:Medial-EarlySign/MR_LIBS.git
+#   cd /earlysign && git clone git@github.com:Medial-EarlySign/medpython.git
 
 # Our code compile: - change Boost path to your local Boost path
 #RUN cd /earlysign/MR_Libs/Internal/AlgoMarker && \

@@ -5,7 +5,7 @@ SETUP_PATH=/earlysign/app
 
 mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 
-git clone https://github.com/Medial-EarlySign/MR_LIBS.git
+git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
 
 #sed -i 's|#set(BOOST_ROOT.*|set(BOOST_ROOT "/earlysign/Boost")|g' MR_LIBS/Internal/AlgoMarker/CMakeLists.txt
 export BOOST_ROOT="/earlysign/Boost"

@@ -8,7 +8,7 @@ mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 # apt-get install python3-pip -y
 # ln -s $(which python3) /usr/bin/python
 
-git clone https://github.com/Medial-EarlySign/MR_LIBS.git
+git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
 git clone https://github.com/Medial-EarlySign/MR_Tools.git
 mkdir -p MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
 cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/*.py MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
