@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.22-alpine3.22
+
+RUN apk add 'libgomp' 'gcompat'
+#RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/v3.16/main libexecinfo
+#LD_PRELOAD=/usr/lib/libexecinfo.so.1
+# Please use the create_image.sh script to create the image
+
+COPY data /
+
+EXPOSE ${PORT}
+ENTRYPOINT [ "/app/AlgoMarker_Server", "--no_print", "1", "--algomarker_path" ,"${AM_CONFIG_PATH}", "--port", "${PORT}"]
