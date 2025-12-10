@@ -42,12 +42,12 @@ jobs:
           python-version: ${{ inputs.python_version }}
 
       # --- 1. RESTORE CACHE ---
-      - name: Restore Boost Cache
-        id: cache-boost
-        uses: actions/cache/restore@v4
-        with:
-          path: ./Boost
-          key: boost-1.89.0-windows-msvc-x64
+      # - name: Restore Boost Cache
+      #   id: cache-boost
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: ./Boost
+      #     key: boost-1.89.0-windows-msvc-x64
 
       # --- 2. BUILD BOOST (If Cache Miss) ---
       - name: Build Boost 1.89.0
@@ -80,12 +80,12 @@ jobs:
           mkdir -p ${WORK_BUILD_FOLDER}/Boost/include
           cp -r ${WORK_BUILD_FOLDER}/boost_${VERSION_UNDERSCORE}/boost ${WORK_BUILD_FOLDER}/Boost/include/
 
-      - name: Save Boost Cache
-        if: steps.cache-boost.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: ./Boost
-          key: boost-1.89.0-windows-msvc-x64
+      # - name: Save Boost Cache
+      #   if: steps.cache-boost.outputs.cache-hit != 'true'
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: ./Boost
+      #     key: boost-1.89.0-windows-msvc-x64
 
       - name: Set BOOST_ROOT
         # We export it for the current step and GITHUB_ENV for future steps.
