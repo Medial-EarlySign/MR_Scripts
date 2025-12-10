@@ -140,8 +140,37 @@ jobs:
           
           ls -l wheelhouse/
 
-      # --- 4. PUBLISH ---
+      # --- UPLOAD ARTIFACT (Prepare for Job 2) ---
+      - name: Upload Wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-wheels
+          # We grab the repaired wheels from wheelhouse
+          path: MR_LIBS/Internal/MedPyExport/generate_binding/wheelhouse/*.whl
+          retention-days: 1
+
+
+  # --- JOB 2: PUBLISH (Runs on Linux) ---
+  publish_to_pypi:
+    name: Publish to PyPI
+    needs: build_mac_wheels
+    runs-on: ubuntu-latest   
+    environment:
+      name: pypi
+      url: https://pypi.org/project/medpython
+
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Download Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: win-wheels
+          path: dist/  # Put them in a 'dist' folder for the publisher
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: MR_LIBS/Internal/MedPyExport/generate_binding/wheelhouse/
+          packages-dir: dist/
