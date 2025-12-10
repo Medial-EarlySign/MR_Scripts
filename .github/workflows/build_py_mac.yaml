@@ -1,0 +1,150 @@
+name: Build medpython (macOS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      python_version:
+        description: 'Python Version to Build'
+        required: true
+        default: '3.10'
+        type: choice
+        options:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build_mac_wheels:
+    name: Build on macOS (${{ inputs.python_version }})
+    runs-on: macos-15-intel
+    environment:
+      name: pypi
+      url: https://pypi.org/project/medpython
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ inputs.python_version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python_version }} # Adjust to your needed version
+
+      # --- 1. RESTORE CACHE (Check if it exists) ---
+      # - name: Restore Boost Cache
+      #   id: cache-boost
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: ./Boost
+      #     key: boost-1.89.0-macos-x86_64
+
+      # --- BUILD BOOST (Only runs if cache miss) ---
+      - name: Build Boost 1.89.0
+        if: steps.cache-boost.outputs.cache-hit != 'true'
+        run: |
+          # 1. Download
+          VERSION=1.89.0
+          VERSION_UNDERSCORE=$(echo ${VERSION} | sed 's/\./_/g')
+          curl -L -o boost_${VERSION_UNDERSCORE}.tar.bz2 https://archives.boost.io/release/${VERSION}/source/boost_${VERSION_UNDERSCORE}.tar.bz2
+          
+          # 2. Extract
+          tar -xjf boost_${VERSION_UNDERSCORE}.tar.bz2
+          
+          # 3. Setup Directories
+          WORK_BUILD_FOLDER=$(pwd)
+          cd boost_${VERSION_UNDERSCORE}
+          
+          # 4. Bootstrap
+          ./bootstrap.sh
+          
+          # 5. Build Static (macOS adaptation)
+          # Note: b2 automatically detects clang on macOS
+          ./b2 cxxflags="-march=x86-64 -fPIC" \
+               link=static \
+               variant=release \
+               threading=multi \
+               pch=off \
+               -j$(sysctl -n hw.ncpu) \
+               --stagedir="${WORK_BUILD_FOLDER}/Boost" \
+               --with-program_options --with-system --with-regex --with-filesystem
+          
+          # 7. Organize Headers
+          mkdir -p ${WORK_BUILD_FOLDER}/Boost/include
+          cp -r ${WORK_BUILD_FOLDER}/boost_${VERSION_UNDERSCORE}/boost ${WORK_BUILD_FOLDER}/Boost/include/
+
+      # - name: Save Boost Cache
+      #   if: steps.cache-boost.outputs.cache-hit != 'true'
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: ./Boost
+      #     key: boost-1.89.0-macos-x86_64
+
+      # --- SETUP ENVIRONMENT VARIABLES ---
+      - name: Set BOOST_ROOT
+        run: echo "BOOST_ROOT=$(pwd)/Boost" >> $GITHUB_ENV
+
+      # --- BUILD PYTHON PACKAGE ---
+      - name: Build MedPython Package
+        run: |
+          # 1. Install System Deps
+          brew install libomp
+          echo "Using Boost at: $BOOST_ROOT"
+
+          git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
+          git clone https://github.com/Medial-EarlySign/MR_Tools.git
+          mkdir -p MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/*.py MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/tests MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/rep_signals MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/data_fetcher MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/dicts MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
+          
+          cd MR_LIBS/Internal/MedPyExport/generate_binding
+          # Get version info:
+          GIT_COMMIT_HASH=$(git rev-parse HEAD)
+          vesrion_in_toml=$(cat pyproject.toml | grep version | cut -d " " -f 3 | sed 's|"||g')
+          version_txt=$(date +'Version_'${vesrion_in_toml}'_Commit_'${GIT_COMMIT_HASH}'_Build_On_%Y%m%d_%H:%M:%S')
+          echo -e "Git version info:\n${version_txt}"
+          export GIT_HEAD_VERSION=$version_txt 
+
+          mkdir -p wheelhouse
+          mkdir -p dist
+          
+          # 5. Install dependencies (if you have a requirements.txt, run it here)
+          pip install build delocate numpy setuptools cmake "swig<4.3" pandas plotly
+
+          # 6. Configure Compiler Flags for OpenMP/libomp
+          LIBOMP_PREFIX=$(brew --prefix libomp)
+          export CFLAGS="-Xpreprocessor -fopenmp -I$LIBOMP_PREFIX/include $CFLAGS"
+          export CXXFLAGS="-Xpreprocessor -fopenmp -I$LIBOMP_PREFIX/include $CXXFLAGS"
+          export LDFLAGS="-lomp -L$LIBOMP_PREFIX/lib $LDFLAGS"
+          
+          # 7. Build (Output to dist/)
+          python -m build --wheel --outdir dist/
+
+          # 8. Repair Wheels (Output to wheelhouse/)
+          for whl in dist/*.whl; do
+              delocate-wheel -v -w wheelhouse/ "$whl"
+          done
+          
+          # Clean up the unrepaired wheel to save space
+          rm dist/*.whl
+
+          # Verify we actually have wheels in wheelhouse
+          ls -l wheelhouse/
+
+      # - name: Test MedPython
+      #   run: |
+      #     python -c 'import med'
+
+      # --- PUBLISH ---
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: MR_LIBS/Internal/MedPyExport/generate_binding/wheelhouse/
