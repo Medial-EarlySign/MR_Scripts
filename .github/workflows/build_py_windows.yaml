@@ -153,7 +153,7 @@ jobs:
   # --- JOB 2: PUBLISH (Runs on Linux) ---
   publish_to_pypi:
     name: Publish to PyPI
-    needs: build_mac_wheels
+    needs: build_windows_wheels
     runs-on: ubuntu-latest   
     environment:
       name: pypi
