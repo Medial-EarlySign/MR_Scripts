@@ -2,19 +2,6 @@ name: Build medpython (Linux Arm)
 
 on:
   workflow_dispatch:
-    inputs:
-      python_version:
-        description: 'Python Version to Build'
-        required: true
-        default: '3.12'
-        type: choice
-        options:
-          - '3.9'
-          - '3.10'
-          - '3.11'
-          - '3.12'
-          - '3.13'
-          - '3.14'
 
 jobs:
   build_arm_wheels:
@@ -36,12 +23,6 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-
-      - name: Set up Python ${{ inputs.python_version }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ inputs.python_version }} # Adjust to your needed version
-
       # --- 0. INSTALL SYSTEM DEPENDENCIES (Linux) ---
       - name: Install System Dependencies
         run: |
@@ -55,10 +36,6 @@ jobs:
           cd Docker/medbuild_tools.new/01.basic_boost_arm
           ./create.sh
     
-      # --- SETUP ENVIRONMENT VARIABLES ---
-      - name: Set BOOST_ROOT
-        run: echo "BOOST_ROOT=$(pwd)/Boost" >> $GITHUB_ENV
-
       # --- BUILD PYTHON PACKAGE ---
       - name: Build Python Packages
         run: |
