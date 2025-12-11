@@ -39,7 +39,7 @@ jobs:
       # --- BUILD PYTHON PACKAGE ---
       - name: Build Python Packages
         run: |
-          cd Docker/medbuild_tools.new/04.medpython
+          cd Docker/medbuild_tools.new/04.medpython_arm
           ./create.sh
 
       - name: Extract Artifacts
