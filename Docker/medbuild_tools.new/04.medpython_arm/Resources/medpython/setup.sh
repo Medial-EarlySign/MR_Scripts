@@ -64,7 +64,7 @@ for PYBIN in "${PYBINARIES[@]}"; do
     ${PYBIN} -m build --wheel --outdir dist/
 
     for whl in dist/*.whl; do
-        auditwheel repair "$whl" --plat manylinux2014_x86_64 -w wheelhouse/
+        auditwheel repair "$whl" --plat manylinux2014_aarch64 -w wheelhouse/
     done
     
     # Clean up the unrepaired wheel to save space
