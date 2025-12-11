@@ -1,0 +1,111 @@
+name: Build medpython (Linux Arm)
+
+on:
+  workflow_dispatch:
+    inputs:
+      python_version:
+        description: 'Python Version to Build'
+        required: true
+        default: '3.12'
+        type: choice
+        options:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
+
+jobs:
+  build_arm_wheels:
+    name: Build on Linux Arm (${{ inputs.python_version }})
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Set up Python ${{ inputs.python_version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python_version }} # Adjust to your needed version
+
+      # --- 0. INSTALL SYSTEM DEPENDENCIES (Linux) ---
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install podman -y
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+
+      - name: Build Base Boost Image
+        run: |
+          cd Docker/medbuild_tools.new/01.basic_boost_arm
+          ./create.sh
+    
+      # --- SETUP ENVIRONMENT VARIABLES ---
+      - name: Set BOOST_ROOT
+        run: echo "BOOST_ROOT=$(pwd)/Boost" >> $GITHUB_ENV
+
+      # --- BUILD PYTHON PACKAGE ---
+      - name: Build Python Packages
+        run: |
+          cd Docker/medbuild_tools.new/04.medpython
+          ./create.sh
+
+      - name: Extract Artifacts
+        run: |
+          mkdir -p dist
+          podman run --rm -dt --name medpython_cont manylinux_medpython bash
+          podman cp medpython_cont:/earlysign/app/MR_LIBS/Internal/MedPyExport/generate_binding/wheelhouse/. dist/
+          podman stop medpython_cont
+
+      # --- UPLOAD ARTIFACT (Prepare for Job 2) ---
+      - name: Upload Wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: arm-wheels
+          # We grab the repaired wheels from wheelhouse
+          path: dist/*.whl
+          retention-days: 1
+      # - name: Test MedPython
+      #   run: |
+      #     python -c 'import med'
+
+
+# --- JOB 2: PUBLISH (Runs on Linux) ---
+  publish_to_pypi:
+    name: Publish to PyPI
+    needs: build_arm_wheels
+    runs-on: ubuntu-latest   
+    environment:
+      name: pypi
+      url: https://pypi.org/project/medpython
+
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Download Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: arm-wheels
+          path: dist/  # Put them in a 'dist' folder for the publisher
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
