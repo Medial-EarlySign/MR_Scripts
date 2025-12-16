@@ -36,11 +36,6 @@ jobs:
           sudo apt-get autoremove -y
           sudo apt-get clean
 
-      - name: Build Base Boost Image
-        run: |
-          cd Docker/medbuild_tools.new/01.basic_boost
-          ./create.sh
-
       - name: Build Python Packages
         run: |
           cd Docker/medbuild_tools.new/04.medpython

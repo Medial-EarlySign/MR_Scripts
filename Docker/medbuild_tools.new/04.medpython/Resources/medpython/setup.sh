@@ -18,20 +18,6 @@ cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/data_fetcher MR_LIBS/Internal/MedP
 cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/dicts MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra
 # add pandas, ipython, plotly to requirements
 
-export BOOST_ROOT="/earlysign/Boost"
-
-#sed -i 's|^dependencies = \[|dependencies = ["pandas", "plotly", "ipython",|g' MR_LIBS/Internal/MedPyExport/generate_binding/pyproject.toml
-#echo -e "# MANIFEST.in\nrecursive-include src/ETL_Infra/dicts *\nrecursive-include src/ETL_Infra/rep_signals *" > MR_LIBS/Internal/MedPyExport/generate_binding/MANIFEST.in
-#sed -i 's|zip_safe=False,|zip_safe=False, include_package_data=True,|g' MR_LIBS/Internal/MedPyExport/generate_binding/setup.py
-# sed -i 's|cmake |cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.10 |g' MR_LIBS/Internal/MedPyExport/generate_binding/make-simple.sh
-#-DSWIG_EXECUTABLE=/opt/python/cp314-cp314/bin/swig
-#-DPython3_EXECUTABLE=
-
-# ln -sf $(which python3.14) /usr/bin/python
-# python -m pip install numpy
-# python -m pip install "swig<4.3"
-# MR_LIBS/Internal/MedPyExport/generate_binding/make-simple.sh
-
 PYBINARIES=(
     "/usr/local/bin/python3.10"
     "/usr/local/bin/python3.11"
