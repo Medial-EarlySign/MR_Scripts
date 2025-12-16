@@ -49,24 +49,12 @@ jobs:
       # --- 1. BUILD WHEEL ---
       - name: Build MedPython Package
         run: |
-          echo "Using Boost at: $BOOST_ROOT"
-          
           # 1. Clone Repos (Public)
           git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
-          git clone https://github.com/Medial-EarlySign/MR_Tools.git
-          
-          # 2. Copy ETL files (Same logic as Mac/Linux)
-          DEST_DIR="MR_LIBS/Internal/MedPyExport/generate_binding/src/ETL_Infra"
-          mkdir -p "$DEST_DIR"
-          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/*.py "$DEST_DIR"
-          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/tests "$DEST_DIR"
-          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/rep_signals "$DEST_DIR"
-          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/data_fetcher "$DEST_DIR"
-          cp -R MR_Tools/RepoLoadUtils/common/ETL_Infra/dicts "$DEST_DIR"
           
           cd MR_LIBS/Internal/MedPyExport/generate_binding
           
-          # 3. Version Logic
+          # 2. Version Logic
           GIT_COMMIT_HASH=$(git rev-parse HEAD)
           version_in_toml=$(grep version pyproject.toml | cut -d " " -f 3 | sed 's|"||g')
           version_txt=$(date +"Version_${version_in_toml}_Commit_${GIT_COMMIT_HASH}_Build_On_%Y%m%d_%H:%M:%S")
@@ -76,16 +64,16 @@ jobs:
           mkdir -p wheelhouse
           mkdir -p dist
           
-          # 4. Install Build Deps
+          # 3. Install Build Deps
           pip install build delvewheel numpy setuptools cmake "swig<4.3" pandas plotly
 
-          # 5. Build
+          # 4. Build
           # We pass -DBoost_NO_BOOST_CMAKE=ON to ensure it uses our cached Boost properly.
           export CMAKE_ARGS="-DBoost_NO_BOOST_CMAKE=ON"
           
           python -m build --wheel --outdir dist/
 
-          # 6. Repair Wheels (Delvewheel)
+          # 5. Repair Wheels (Delvewheel)
           # This bundles any missing non-system DLLs (like specific OpenMP runtimes if needed)
           echo "Repairing wheels with delvewheel..."
           for whl in dist/*.whl; do
