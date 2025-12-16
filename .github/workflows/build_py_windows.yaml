@@ -15,6 +15,11 @@ on:
           - '3.12'
           - '3.13'
           - '3.14'
+      publish_to_pypi:
+        description: 'Publish to PyPI?'
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -41,58 +46,7 @@ jobs:
         with:
           python-version: ${{ inputs.python_version }}
 
-      # --- 1. RESTORE CACHE ---
-      # - name: Restore Boost Cache
-      #   id: cache-boost
-      #   uses: actions/cache/restore@v4
-      #   with:
-      #     path: ./Boost
-      #     key: boost-1.89.0-windows-msvc-x64
-
-      # --- 2. BUILD BOOST (If Cache Miss) ---
-      - name: Build Boost 1.89.0
-        if: steps.cache-boost.outputs.cache-hit != 'true'
-        run: |
-          VERSION=1.89.0
-          VERSION_UNDERSCORE=$(echo ${VERSION} | sed 's/\./_/g')
-          # Note: Windows zip/7z is safer, but tar usually works in Git Bash
-          curl -L -o boost_${VERSION_UNDERSCORE}.tar.bz2 https://archives.boost.io/release/${VERSION}/source/boost_${VERSION_UNDERSCORE}.tar.bz2
-          
-          tar -xjf boost_${VERSION_UNDERSCORE}.tar.bz2
-          
-          WORK_BUILD_FOLDER=$(pwd)
-          cd boost_${VERSION_UNDERSCORE}
-          
-          # Bootstrap for Windows (creates b2.exe)
-          ./bootstrap.bat
-          
-          # Build Static Libs with Dynamic Runtime (/MD)
-          # link=static        : Embed Boost code into your DLL (Portable)
-          # runtime-link=shared: Use Python's MSVCRT.DLL (Critical!)
-          ./b2 toolset=msvc address-model=64 \
-               link=static runtime-link=shared \
-               variant=release threading=multi pch=off \
-               -j$(( $(nproc) + 1 )) \
-               --stagedir="${WORK_BUILD_FOLDER}/Boost" \
-               --with-program_options --with-system --with-regex --with-filesystem --with-serialization
-          
-          # Copy Headers
-          mkdir -p ${WORK_BUILD_FOLDER}/Boost/include
-          cp -r ${WORK_BUILD_FOLDER}/boost_${VERSION_UNDERSCORE}/boost ${WORK_BUILD_FOLDER}/Boost/include/
-
-      # - name: Save Boost Cache
-      #   if: steps.cache-boost.outputs.cache-hit != 'true'
-      #   uses: actions/cache/save@v4
-      #   with:
-      #     path: ./Boost
-      #     key: boost-1.89.0-windows-msvc-x64
-
-      - name: Set BOOST_ROOT
-        # We export it for the current step and GITHUB_ENV for future steps.
-        run: |
-          echo "BOOST_ROOT=$(pwd)/Boost" >> $GITHUB_ENV
-
-      # --- 3. BUILD WHEEL ---
+      # --- 1. BUILD WHEEL ---
       - name: Build MedPython Package
         run: |
           echo "Using Boost at: $BOOST_ROOT"
@@ -154,7 +108,8 @@ jobs:
   publish_to_pypi:
     name: Publish to PyPI
     needs: build_windows_wheels
-    runs-on: ubuntu-latest   
+    runs-on: ubuntu-latest
+    if: ${{ inputs.publish_to_pypi == true }}
     environment:
       name: pypi
       url: https://pypi.org/project/medpython

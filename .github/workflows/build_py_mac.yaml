@@ -15,6 +15,11 @@ on:
           - '3.12'
           - '3.13'
           - '3.14'
+      publish_to_pypi:
+        description: 'Publish to PyPI?'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build_mac_wheels:
@@ -31,65 +36,11 @@ jobs:
         with:
           python-version: ${{ inputs.python_version }} # Adjust to your needed version
 
-      # --- 1. RESTORE CACHE (Check if it exists) ---
-      # - name: Restore Boost Cache
-      #   id: cache-boost
-      #   uses: actions/cache/restore@v4
-      #   with:
-      #     path: ./Boost
-      #     key: boost-1.89.0-macos-x86_64
-
-      # --- BUILD BOOST (Only runs if cache miss) ---
-      - name: Build Boost 1.89.0
-        if: steps.cache-boost.outputs.cache-hit != 'true'
-        run: |
-          # 1. Download
-          VERSION=1.89.0
-          VERSION_UNDERSCORE=$(echo ${VERSION} | sed 's/\./_/g')
-          curl -L -o boost_${VERSION_UNDERSCORE}.tar.bz2 https://archives.boost.io/release/${VERSION}/source/boost_${VERSION_UNDERSCORE}.tar.bz2
-          
-          # 2. Extract
-          tar -xjf boost_${VERSION_UNDERSCORE}.tar.bz2
-          
-          # 3. Setup Directories
-          WORK_BUILD_FOLDER=$(pwd)
-          cd boost_${VERSION_UNDERSCORE}
-          
-          # 4. Bootstrap
-          ./bootstrap.sh
-          
-          # 5. Build Static (macOS adaptation)
-          # Note: b2 automatically detects clang on macOS
-          ./b2 cxxflags="-march=x86-64 -fPIC" \
-               link=static \
-               variant=release \
-               threading=multi \
-               pch=off \
-               -j$(sysctl -n hw.ncpu) \
-               --stagedir="${WORK_BUILD_FOLDER}/Boost" \
-               --with-program_options --with-system --with-regex --with-filesystem
-          
-          # 7. Organize Headers
-          mkdir -p ${WORK_BUILD_FOLDER}/Boost/include
-          cp -r ${WORK_BUILD_FOLDER}/boost_${VERSION_UNDERSCORE}/boost ${WORK_BUILD_FOLDER}/Boost/include/
-
-      # - name: Save Boost Cache
-      #   if: steps.cache-boost.outputs.cache-hit != 'true'
-      #   uses: actions/cache/save@v4
-      #   with:
-      #     path: ./Boost
-      #     key: boost-1.89.0-macos-x86_64
-
-      # --- SETUP ENVIRONMENT VARIABLES ---
-      - name: Set BOOST_ROOT
-        run: echo "BOOST_ROOT=$(pwd)/Boost" >> $GITHUB_ENV
-
       # --- BUILD PYTHON PACKAGE ---
       - name: Build MedPython Package
         run: |
           # 1. Install System Deps
           brew install libomp
-          echo "Using Boost at: $BOOST_ROOT"
 
           git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
           git clone https://github.com/Medial-EarlySign/MR_Tools.git
@@ -153,7 +104,8 @@ jobs:
   publish_to_pypi:
     name: Publish to PyPI
     needs: build_mac_wheels
-    runs-on: ubuntu-latest   
+    runs-on: ubuntu-latest
+    if: ${{ inputs.publish_to_pypi == true }}
     environment:
       name: pypi
       url: https://pypi.org/project/medpython

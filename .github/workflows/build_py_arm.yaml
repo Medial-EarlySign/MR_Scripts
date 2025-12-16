@@ -2,6 +2,12 @@ name: Build medpython (Linux Arm)
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_to_pypi:
+        description: 'Publish to PyPI?'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build_arm_wheels:
@@ -31,11 +37,6 @@ jobs:
           sudo apt-get autoremove -y
           sudo apt-get clean
 
-      - name: Build Base Boost Image
-        run: |
-          cd Docker/medbuild_tools.new/01.basic_boost_arm
-          ./create.sh
-    
       # --- BUILD PYTHON PACKAGE ---
       - name: Build Python Packages
         run: |
@@ -66,7 +67,8 @@ jobs:
   publish_to_pypi:
     name: Publish to PyPI
     needs: build_arm_wheels
-    runs-on: ubuntu-latest   
+    runs-on: ubuntu-latest
+    if: ${{ inputs.publish_to_pypi == true }}
     environment:
       name: pypi
       url: https://pypi.org/project/medpython
