@@ -24,7 +24,7 @@ on:
 jobs:
   build_mac_wheels:
     name: Build on macOS (${{ inputs.python_version }})
-    runs-on: macos-15
+    runs-on: macos-14
     permissions:
       contents: read
     steps:
@@ -63,9 +63,8 @@ jobs:
           export CFLAGS="-Xpreprocessor -fopenmp -I$LIBOMP_PREFIX/include $CFLAGS"
           export CXXFLAGS="-Xpreprocessor -fopenmp -I$LIBOMP_PREFIX/include $CXXFLAGS"
           export LDFLAGS="-lomp -L$LIBOMP_PREFIX/lib $LDFLAGS"
-          export MACOSX_DEPLOYMENT_TARGET="13.0"
           export ARCHFLAGS="-arch arm64" #x86_64
-          export _PYTHON_HOST_PLATFORM="macosx-13.0-arm64"
+          export _PYTHON_HOST_PLATFORM="macosx-14.0-arm64"
           
           # 7. Build (Output to dist/)
           python -m build --wheel --outdir dist/
