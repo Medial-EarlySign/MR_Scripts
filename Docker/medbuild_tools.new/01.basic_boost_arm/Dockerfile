@@ -3,7 +3,7 @@
 FROM quay.io/pypa/manylinux2014_aarch64
 
 # RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install binutils gcc g++ cmake make libgomp1 python3-dev swig bzip2 wget patchelf git sed gawk -y
-RUN yum install wget bzip2 git sed gawk python3-devel -y
+RUN yum install wget bzip2 -y
 
 WORKDIR /earlysign
 

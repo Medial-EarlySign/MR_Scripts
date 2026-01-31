@@ -2,7 +2,7 @@
 #FROM ubuntu_boost
 FROM quay.io/pypa/manylinux2014_aarch64
 
-RUN yum install wget bzip2 git sed gawk python3-devel -y
+RUN yum install python3-devel -y
 
 WORKDIR /earlysign
 

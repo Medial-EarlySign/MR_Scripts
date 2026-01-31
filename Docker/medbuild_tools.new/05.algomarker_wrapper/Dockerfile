@@ -2,8 +2,6 @@
 #FROM ubuntu_boost
 FROM quay.io/pypa/manylinux2014_x86_64
 
-RUN yum install wget bzip2 git -y
-
 WORKDIR /earlysign
 
 COPY Resources/ .
