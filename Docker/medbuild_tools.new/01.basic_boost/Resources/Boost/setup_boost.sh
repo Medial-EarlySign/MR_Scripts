@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Download Boost
-VERSION=1.89.0
+VERSION=1.90.0
 VERSION_2=$(echo ${VERSION} | awk -F. '{print $1 "_" $2 "_" $3}')
 wget https://archives.boost.io/release/${VERSION}/source/boost_${VERSION_2}.tar.bz2
 
@@ -18,7 +18,7 @@ cd boost_${VERSION_2}
 ./b2 --clean
 
 # Build static libraries
-./b2 cxxflags=-march=x86-64 cxxflags=-fPIC link=static variant=release linkflags=-static-libstdc++ -j8 pch=off --stagedir="${WORK_BUILD_FOLDER}/Boost" --with-program_options --with-system --with-regex --with-filesystem
+./b2 cxxflags=-march=x86-64 cxxflags=-fPIC link=static variant=release -j8 pch=off --stagedir="${WORK_BUILD_FOLDER}/Boost" --with-program_options
 
 mkdir -p ${WORK_BUILD_FOLDER}/Boost/include
 
@@ -26,4 +26,4 @@ mkdir -p ${WORK_BUILD_FOLDER}/Boost/include
 ln -sf ${WORK_BUILD_FOLDER}/boost_${VERSION_2}/boost  ${WORK_BUILD_FOLDER}/Boost/include
 
 # Build shared libraries (not needed for AlgoMarker, but needed for MES tools if you choose to compile)
-./b2 cxxflags=-march=x86-64 cxxflags=-fPIC pch=off link=shared variant=release linkflags=-static-libstdc++ -j8 --stagedir="${WORK_BUILD_FOLDER}/Boost" --with-program_options --with-system --with-regex --with-filesystem
+./b2 cxxflags=-march=x86-64 cxxflags=-fPIC pch=off link=shared variant=release -j8 --stagedir="${WORK_BUILD_FOLDER}/Boost" --with-program_options
