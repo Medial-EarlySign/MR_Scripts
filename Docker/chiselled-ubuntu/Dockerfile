@@ -1,6 +1,6 @@
 #FROM amd64/golang:1.20 as chisel
-ARG UBUNTU_RELEASE=24.04
-ARG CHISEL_VERSION=1.1.0
+ARG UBUNTU_RELEASE=26.04
+ARG CHISEL_VERSION=1.4.1
 ARG TARGETARCH=amd64
 # This Dockerfile builds a minimal Ubuntu image using chisel.
 
