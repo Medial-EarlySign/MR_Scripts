@@ -42,8 +42,7 @@ jobs:
       - name: Physically Locate XGBoost Files
         run: |
           echo "Scanning Conda environment for XGBoost..."
-          cd %CONDA_PREFIX%
-          dir /s /b *xgboost*
+          dir /s /b C:\*xgboost* 2>nul
 
       - name: Run CMake Configuration
         run: |
