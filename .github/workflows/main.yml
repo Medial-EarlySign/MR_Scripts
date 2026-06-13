@@ -38,6 +38,12 @@ jobs:
           message(STATUS "SUCCESS: XGBoost CMake config was found!")
           message(STATUS "=========================================")
           EOF
+          
+      - name: Physically Locate XGBoost Files
+        run: |
+          echo "Scanning Conda environment for XGBoost..."
+          cd %CONDA_PREFIX%
+          dir /s /b *xgboost*
 
       - name: Run CMake Configuration
         run: |
