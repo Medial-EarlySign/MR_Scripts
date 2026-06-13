@@ -1,0 +1,48 @@
+name: Debug Windows XGBoost Discovery
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  test-windows-xgboost:
+    runs-on: windows-latest
+    defaults:
+      run:
+        # Crucial for Windows Conda: ensures the environment is properly activated
+        shell: cmd /C call {0} 
+
+    steps:
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          auto-update-conda: true
+          activate-environment: test-env
+          channels: conda-forge,defaults
+          channel-priority: strict
+
+      - name: Install Dependencies
+        run: |
+          conda install -y cmake "libxgboost==2.0.3" cxx-compiler
+
+      - name: Generate CMakeLists.txt inline
+        shell: bash
+        run: |
+          cat << 'EOF' > CMakeLists.txt
+          cmake_minimum_required(VERSION 3.20)
+          project(XGBoostDebug CXX)
+
+          message(STATUS "Looking for XGBoost...")
+          find_package(xgboost REQUIRED)
+          
+          message(STATUS "=========================================")
+          message(STATUS "SUCCESS: XGBoost CMake config was found!")
+          message(STATUS "=========================================")
+          EOF
+
+      - name: Run CMake Configuration
+        run: |
+          mkdir build
+          cd build
+          
+          :: Naked CMake call, matching your setup.py
+          cmake ..
