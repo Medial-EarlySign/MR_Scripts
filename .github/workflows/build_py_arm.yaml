@@ -3,6 +3,17 @@ name: Build medpython (Linux Arm)
 on:
   workflow_dispatch:
     inputs:
+      python_version:
+        description: 'Python Version to Build'
+        required: true
+        default: '3.13'
+        type: choice
+        options:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
       publish_to_pypi:
         description: 'Publish to PyPI?'
         required: true
@@ -41,7 +52,8 @@ jobs:
       - name: Build Python Packages
         run: |
           cd Docker/medbuild_tools.new/04.medpython_arm
-          ./create.sh
+          ./create.sh ${{ inputs.python_version }}
+
 
       - name: Extract Artifacts
         run: |

@@ -2,6 +2,7 @@
 set -e
 
 SETUP_PATH=/earlysign/app
+PY_VERSION=${1-3.13}
 
 mkdir -p ${SETUP_PATH} && cd ${SETUP_PATH}
 
@@ -14,8 +15,8 @@ git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
 PYBINARIES=(
     #"/usr/local/bin/python3.10"
     #"/usr/local/bin/python3.11"
-    "/usr/local/bin/python3.12"
-    #"/usr/local/bin/python3.13"
+    #"/usr/local/bin/python3.12"
+    "/usr/local/bin/python${PY_VERSION}"
     #"/usr/local/bin/python3.14"
 )
 
@@ -38,7 +39,7 @@ for PYBIN in "${PYBINARIES[@]}"; do
     echo "======================================================="
 
     ${PYBIN} -m pip install numpy build
-    ${PYBIN} -m pip install "swig<4.3"
+    ${PYBIN} -m pip install swig
 
     ${PYBIN} -m build --wheel --outdir dist/
 

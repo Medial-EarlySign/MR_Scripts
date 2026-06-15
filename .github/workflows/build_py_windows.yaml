@@ -6,10 +6,9 @@ on:
       python_version:
         description: 'Python Version to Build'
         required: true
-        default: '3.10'
+        default: '3.11'
         type: choice
         options:
-          - '3.9'
           - '3.10'
           - '3.11'
           - '3.12'
@@ -65,7 +64,7 @@ jobs:
           mkdir -p dist
           
           # 3. Install Build Deps
-          pip install build delvewheel numpy setuptools cmake "swig<4.3" pandas plotly
+          pip install build delvewheel numpy setuptools cmake swig pandas plotly
 
           # 4. Build
           # We pass -DBoost_NO_BOOST_CMAKE=ON to ensure it uses our cached Boost properly.

@@ -38,7 +38,7 @@ for PYBIN in "${PYBINARIES[@]}"; do
     echo "======================================================="
 
     ${PYBIN} -m pip install numpy build
-    ${PYBIN} -m pip install "swig<4.3"
+    ${PYBIN} -m pip install swig
 
     ${PYBIN} -m build --wheel --outdir dist/
 

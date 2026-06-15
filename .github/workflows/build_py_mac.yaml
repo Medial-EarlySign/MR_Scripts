@@ -5,11 +5,9 @@ on:
     inputs:
       python_version:
         description: 'Python Version to Build'
-        required: true
-        default: '3.10'
+        requiredefault: '3.11'
         type: choice
         options:
-          - '3.9'
           - '3.10'
           - '3.11'
           - '3.12'
@@ -56,7 +54,7 @@ jobs:
           mkdir -p dist
           
           # 5. Install dependencies (if you have a requirements.txt, run it here)
-          pip install build delocate numpy setuptools cmake "swig<4.3" pandas plotly
+          pip install build delocate numpy setuptools cmake swig pandas plotly
 
           # 6. Configure Compiler Flags for OpenMP/libomp
           LIBOMP_PREFIX=$(brew --prefix libomp)
