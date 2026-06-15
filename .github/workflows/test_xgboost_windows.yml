@@ -22,7 +22,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          conda install -y cmake "libxgboost==2.0.3" cxx-compiler
+          conda install -y cmake "libxgboost==3.2.0" cxx-compiler
 
       - name: Generate CMakeLists.txt inline
         shell: bash
