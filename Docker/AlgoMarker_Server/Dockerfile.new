@@ -1,0 +1,14 @@
+FROM cgr.dev/chainguard/wolfi-base:latest AS builder
+RUN apk add --no-cache libgomp
+
+FROM cgr.dev/chainguard/glibc-dynamic:latest
+
+# 1. Copy ONLY the libgomp library from stage 1
+COPY --from=builder /usr/lib/libgomp.so* /usr/lib/
+
+# 2. Copy your app files
+COPY data /
+
+USER nonroot
+EXPOSE ${PORT}
+ENTRYPOINT [ "/app/AlgoMarker_Server", "--no_print", "1", "--algomarker_path" ,"${AM_CONFIG_PATH}", "--port", "${PORT}"]

@@ -36,7 +36,7 @@ if [ ! -f "${ALGO_SERVER_PATH}" ]; then
 fi
 
 # Generate a Dockerfile from the template
-sed -e "s|\${AM_CONFIG_PATH}|/${AM_CONFIG_PATH_DOCKER}|g" -e "s|\${PORT}|${PORT}|g" Dockerfile.template > Dockerfile
+sed -e "s|\${AM_CONFIG_PATH}|/${AM_CONFIG_PATH_DOCKER}|g" -e "s|\${PORT}|${PORT}|g" Dockerfile.new > Dockerfile
 
 # Run build
 podman build -t ${AM_IMAGE_NAME} --no-cache .
