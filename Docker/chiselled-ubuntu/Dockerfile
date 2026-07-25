@@ -24,11 +24,17 @@ RUN chisel cut --release ubuntu-$UBUNTU_RELEASE --root /rootfs \
    libgcc-s1_libs \
    libc6_libs \
    libstdc++6_libs \ 
-   libgomp1_libs \
-   bash_bins
+   libgomp1_libs 
+
+RUN mkdir -p /rootfs/etc && \
+    echo "root:x:0:0:root:/root:/sbin/nologin" > /rootfs/etc/passwd && \
+    echo "root:x:0:" > /rootfs/etc/group && \
+    echo "nonroot:x:65532:65532:nonroot:/home/nonroot:/sbin/nologin" >> /rootfs/etc/passwd && \
+    echo "nonroot:x:65532:" >> /rootfs/etc/group
 
 # Make the chiselled filesystem the only thing
 # present in the final image.
 FROM scratch
 COPY --from=builder /rootfs /
 
+USER nonroot
