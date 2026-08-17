@@ -1,4 +1,5 @@
 import re
+import traceback
 import urllib.request
 import json
 import os
@@ -65,9 +66,9 @@ def process_bug(file_path: str, line_str: int, before: int = 2, after: int = 3) 
 
     prompt = (
         "The following C++ code has a 'Multiplication result converted to larger type' warning "
-        "on the middle line. Please fix it by wrapping the integer multiplication operands in "
-        "`static_cast<size_t>(...)` before they are multiplied. "
-        "Return the exact same 7 lines of code with only the necessary fix applied."
+        "on the middle line. Please fix it by wrapping the multiplication operands in "
+        "`static_cast<size_t>(...)` or `static_cast<double>(...)` before they are multiplied. "
+        "Return the exact same ALL lines of code with only the necessary fix. Pay attention, you might need to use the static_cast more than once."
     )
 
     fixed_context = call_qwen(prompt, context_str)
@@ -133,19 +134,24 @@ def process_bugs():
     # Read the full bug report
     df = pd.read_csv(BUG_REPORT_FILE)
     if "status" in df.columns:
-        df = df[(df["status"].isna()) |  (df["status"] < 1)].reset_index(drop=True)
+        df = df[(df["status"].isna()) | (df["status"] < 1)].reset_index(drop=True)
 
+    # skip BART for now
+    df = df[~df["file"].str.endswith("BART.cpp")].reset_index(drop=True)
     print(f"Found {len(df)} bugs to process.")
-    df = df.iloc[:5]
     df["status"] = 0
 
+    # range(10)
     for i in range(len(df)):
         file_path = df["file"].iloc[i].strip()
         target_line_idx = int(df["line"].iloc[i])
-        if process_bug(file_path, target_line_idx):
-            df.loc[df.index == i, "status"] = 1
+        try:
+            if process_bug(file_path, target_line_idx):
+                df.loc[df.index == i, "status"] = 1
+        except:
+            traceback.print_exc()
 
-    df.to_csv("/tmp/inst2.csv")
+    df.to_csv("/tmp/inst2.csv", index=False)
 
 
 if __name__ == "__main__":
