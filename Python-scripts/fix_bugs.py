@@ -4,6 +4,7 @@ import urllib.request
 import json
 import os
 import pandas as pd
+import re
 
 # --- Configuration ---
 BUG_REPORT_FILE = "/tmp/inst.csv"
@@ -12,7 +13,7 @@ LOCAL_LLM_URL = "http://localhost:8000/v1/chat/completions"
 MODEL_NAME = "Qwen-2.5-Coder-14B"  # Change to your exact model name in Ollama/LM Studio
 
 
-def call_qwen(prompt: str, code_context: str):
+def call_qwen(prompt: str, code_context: str, exact_line: str):
     """Calls the local Qwen model via an OpenAI-compatible API."""
     data = {
         "model": MODEL_NAME,
@@ -23,7 +24,7 @@ def call_qwen(prompt: str, code_context: str):
             },
             {
                 "role": "user",
-                "content": f"{prompt}\n\nHere is the code:\n{code_context}",
+                "content": f"{prompt}\n\nHere is the code context:\n{code_context}\n\nThe specific line need to be fixed is:\n{exact_line}",
             },
         ],
         "temperature": 0.1,  # Keep it low for predictable code edits
@@ -44,7 +45,7 @@ def call_qwen(prompt: str, code_context: str):
         return None
 
 
-def process_bug(file_path: str, line_str: int, before: int = 2, after: int = 3) -> bool:
+def process_bug(file_path: str, line_str: int, before: int = 5, after: int = 5) -> bool:
     file_path = file_path.strip()
     target_line_idx = line_str - 1  # Convert to 0-indexed
 
@@ -63,15 +64,16 @@ def process_bug(file_path: str, line_str: int, before: int = 2, after: int = 3) 
     context_str = "".join(context_lines)
 
     print(f"\nProcessing {file_path}:{line_str}...")
+    whitespace_prefix = re.compile(r"^\s+")
 
     prompt = (
         "The following C++ code has a 'Multiplication result converted to larger type' warning "
         "on the middle line. Please fix it by wrapping the multiplication operands in "
         "`static_cast<size_t>(...)` or `static_cast<double>(...)` before they are multiplied. "
-        "Return the exact same ALL lines of code with only the necessary fix. Pay attention, you might need to use the static_cast more than once."
+        "Return ONLY the exact same line of code with only the necessary fix. Pay attention, you might need to use the static_cast more than once."
     )
 
-    fixed_context = call_qwen(prompt, context_str)
+    fixed_context = call_qwen(prompt, context_str, lines[target_line_idx])
 
     if not fixed_context:
         print("Skipping due to LLM error.")
@@ -92,41 +94,52 @@ def process_bug(file_path: str, line_str: int, before: int = 2, after: int = 3) 
     fixed_lines: list[str] = fixed_context.strip().splitlines(keepends=True)
     lines_context = context_str.strip().splitlines(keepends=True)
 
-    if fixed_lines[0].strip() != lines_context[0].strip():
-        print("Error - seems like replacing code. start error")
-        print("\n############\nOriginal Lines:")
-        print(lines_context)
-        print("\n############\nFixed Lines:")
-        print(fixed_lines)
-        return False
+    if len(fixed_lines)>1:
 
-    fixed_lines[0] = context_str.splitlines(keepends=True)[
-        0
-    ]  # if there are white spaces
+        if fixed_lines[0].strip() != lines_context[0].strip():
+            print("Error - seems like replacing code. start error")
+            print("\n############\nOriginal Lines:")
+            print(lines_context)
+            print("\n############\nFixed Lines:")
+            print(fixed_lines)
+            return False
 
-    if fixed_lines[-1].strip() != lines_context[-1].strip():
-        print("Error - seems like replacing code. end error")
-        print("\n############\nOriginal Lines:")
-        print(lines_context)
-        print("\n############\nFixed Lines:")
-        print(fixed_lines)
-        return False
+        fixed_lines[0] = context_str.splitlines(keepends=True)[
+            0
+        ]  # if there are white spaces
 
-    # if len(fixed_lines) < end_idx-start_idx:
-    fixed_lines.append("\n")
+        if fixed_lines[-1].strip() != lines_context[-1].strip():
+            print("Error - seems like replacing code. end error")
+            print("\n############\nOriginal Lines:")
+            print(lines_context)
+            print("\n############\nFixed Lines:")
+            print(fixed_lines)
+            return False
 
-    # Replace the original lines with the fixed lines
-    if len(fixed_lines) > 0:
-        lines[start_idx:end_idx] = fixed_lines
+        # if len(fixed_lines) < end_idx-start_idx:
+        fixed_lines.append("\n")
 
-        # Write the fixed file back
+        if len(fixed_lines) > 0:
+            lines[start_idx:end_idx] = fixed_lines
+    
+            # Write the fixed file back
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.writelines(lines)
+            print(f"Successfully patched {file_path}")
+        else:
+            print(f"Failed to parse LLM output for {file_path}")
+            return False
+    else:
+        print("Using the one line")
+        whitespace_p = ""
+        if whitespace_prefix.search(lines[target_line_idx]):
+            whitespace_p = whitespace_prefix.findall(lines[target_line_idx])[0]
+        lines[target_line_idx] = whitespace_p + fixed_lines[0] + "\n"
         with open(file_path, "w", encoding="utf-8") as f:
             f.writelines(lines)
         print(f"Successfully patched {file_path}")
-    else:
-        print(f"Failed to parse LLM output for {file_path}")
-        return False
 
+    # Replace the original lines with the fixed lines
     return True
 
 
@@ -142,7 +155,7 @@ def process_bugs():
     df["status"] = 0
 
     # range(10)
-    for i in range(len(df)):
+    for i in range(3):
         file_path = df["file"].iloc[i].strip()
         target_line_idx = int(df["line"].iloc[i])
         try:
