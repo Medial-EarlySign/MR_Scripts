@@ -5,6 +5,16 @@ import json
 import os
 import pandas as pd
 import re
+from playwright.sync_api import (
+    sync_playwright,
+    BrowserContext,
+    Playwright,
+    Locator,
+    Page,
+)
+
+import glob
+import time
 
 # --- Configuration ---
 BUG_REPORT_FILE = "/tmp/inst.csv"
@@ -94,7 +104,7 @@ def process_bug(file_path: str, line_str: int, before: int = 5, after: int = 5) 
     fixed_lines: list[str] = fixed_context.strip().splitlines(keepends=True)
     lines_context = context_str.strip().splitlines(keepends=True)
 
-    if len(fixed_lines)>1:
+    if len(fixed_lines) > 1:
 
         if fixed_lines[0].strip() != lines_context[0].strip():
             print("Error - seems like replacing code. start error")
@@ -121,7 +131,7 @@ def process_bug(file_path: str, line_str: int, before: int = 5, after: int = 5) 
 
         if len(fixed_lines) > 0:
             lines[start_idx:end_idx] = fixed_lines
-    
+
             # Write the fixed file back
             with open(file_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
@@ -150,14 +160,14 @@ def process_bugs():
         df = df[(df["status"].isna()) | (df["status"] < 1)].reset_index(drop=True)
 
     # skip BART for now
-    df = df[~df["file"].str.endswith("BART.cpp")].reset_index(drop=True)
+    # df = df[~df["file"].str.endswith("BART.cpp")].reset_index(drop=True)
     print(f"Found {len(df)} bugs to process.")
     df["status"] = 0
 
-    # range(10)
-    for i in range(3):
-        file_path = df["file"].iloc[i].strip()
-        target_line_idx = int(df["line"].iloc[i])
+    n = len(df)  # 3
+    for i in range(n):
+        file_path = df["file_path"].iloc[i].strip()
+        target_line_idx = int(df["line_number"].iloc[i])
         try:
             if process_bug(file_path, target_line_idx):
                 df.loc[df.index == i, "status"] = 1
@@ -166,6 +176,83 @@ def process_bugs():
 
     df.to_csv("/tmp/inst2.csv", index=False)
 
+
+def fetch_data(x: Locator):
+    MR_LIBS = os.environ["MR_LIBS"]
+    bug_number = int(x.locator("#number").get_attribute("value"))  # type: ignore
+    all_links = x.locator("a").all()
+    bug_type = list(filter(lambda y: "code-scanning?query=" not in y.get_attribute("href"), all_links))[0].inner_text()  # type: ignore
+    all_links = x.locator("a[id]").all()
+    file_path_e = list(filter(lambda y: y.get_attribute("id").startswith("file-path-"), all_links))[0]  # type: ignore
+    file_path = file_path_e.inner_text()
+    file_path = glob.glob(
+        MR_LIBS + "/" + file_path.replace("...", "*").replace("...", "*")
+    )[0]
+    line_num = int(file_path_e.locator("..").inner_text().split(":")[-1])
+    return {
+        "bug_number": bug_number,
+        "bug_type": bug_type,
+        "file_path": file_path,
+        "line_number": line_num,
+    }
+
+
+# Read data from github: https://github.com/Medial-EarlySign/medpython/security/code-scanning
+def get_bugs():
+    user_path = None
+    if "PLAYWRIGHT_CHROMIUM_USER_DATA" in os.environ:
+        user_path = os.environ["PLAYWRIGHT_CHROMIUM_USER_DATA"]
+        os.makedirs(user_path, exist_ok=True)
+
+    playwright_manager = sync_playwright().start()
+    if user_path:
+        browser_context = playwright_manager.chromium.launch_persistent_context(
+            user_data_dir=user_path,
+            headless=False,
+            args=["--disable-blink-features=AutomationControlled"],
+            no_viewport=True,
+            user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+        )
+    else:
+        browser = playwright_manager.chromium.launch(
+            headless=False,
+            args=["--disable-blink-features=AutomationControlled"],
+        )
+        browser_context = browser.new_context(
+            user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+        )
+    page = browser_context.pages[0]
+    page.goto("https://github.com/Medial-EarlySign/medpython/security/code-scanning")
+
+    table = page.locator("ul.js-alert-list").all()
+    table = table[0]
+    all_data = []
+    for li in table.locator("li").all():
+        all_data.append(fetch_data(li))
+
+    # page next:
+    next_btn = page.locator("a.next_page")
+    is_ok = next_btn.is_enabled() and next_btn.is_visible()
+    while is_ok:
+        next_btn.click()
+        time.sleep(1)
+        table = page.locator("ul.js-alert-list").all()
+        table = table[0]
+        for li in table.locator("li").all():
+            all_data.append(fetch_data(li))
+
+        next_btn = page.locator("a.next_page")
+        try:
+            is_ok = len(next_btn.all()) >0 and next_btn.is_enabled() and next_btn.is_visible()
+        except:
+            is_ok = False
+
+    df = pd.DataFrame(all_data)
+    df = df.sort_values(["file_path", "line_number"], ascending=[True, False], ignore_index=True)
+    df["status"] = 0
+    df.to_csv(BUG_REPORT_FILE, index=False)
+    return df
 
 if __name__ == "__main__":
     process_bugs()
