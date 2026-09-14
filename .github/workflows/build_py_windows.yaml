@@ -38,10 +38,10 @@ jobs:
 
     steps:
       - name: Checkout DevOps Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python ${{ inputs.python_version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ inputs.python_version }}
 
@@ -83,7 +83,7 @@ jobs:
 
       # --- UPLOAD ARTIFACT (Prepare for Job 2) ---
       - name: Upload Wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-wheels
           # We grab the repaired wheels from wheelhouse
@@ -107,7 +107,7 @@ jobs:
     
     steps:
       - name: Download Wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: win-wheels
           path: dist/  # Put them in a 'dist' folder for the publisher
