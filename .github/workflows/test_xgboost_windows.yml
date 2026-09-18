@@ -22,7 +22,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          conda install -y cmake cxx-compiler "libxgboost==3.4.1"
+          conda install -y cmake cxx-compiler dmlc "libxgboost==3.4.1"
 
       - name: Generate Source Code and CMakeLists
         shell: bash
