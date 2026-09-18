@@ -53,6 +53,12 @@ jobs:
           cmake_minimum_required(VERSION 3.20)
           project(XGBoostDebug CXX)
 
+          set(CMAKE_CXX_STANDARD 17)
+          set(CMAKE_CXX_STANDARD_REQUIRED ON)
+          set(CMAKE_CXX_EXTENSIONS OFF)
+          set(CMAKE_BUILD_TYPE "Release")
+          set(COMPILER_FLAGS "/openmp /EHsc /MD /permissive- /Zc:strictStrings- /Zc:__cplusplus /utf-8 /DMES_LIBRARY=1")
+
           message(STATUS "Looking for XGBoost...")
           find_package(xgboost REQUIRED)
           message(STATUS "SUCCESS: XGBoost CMake config was found!")
