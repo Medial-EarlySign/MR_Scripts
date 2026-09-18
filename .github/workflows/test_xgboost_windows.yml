@@ -22,32 +22,117 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          conda install -y cmake "libxgboost==3.2.0" cxx-compiler
+          conda install -y cmake "libxgboost==3.4.1" cxx-compiler
 
-      - name: Generate CMakeLists.txt inline
+      - name: Generate Source Code and CMakeLists
         shell: bash
         run: |
+          # 1. Create a minimal C++ program using XGBoost
+          cat << 'EOF' > main.cpp
+          #include <iostream>
+          #include <xgboost/c_api.h>
+
+          int main() {
+              int major, minor, patch;
+              XGBoostVersion(&major, &minor, &patch);
+              std::cout << "=========================================" << std::endl;
+              std::cout << "SUCCESS! XGBoost Version: " << major << "." << minor << "." << patch << std::endl;
+              std::cout << "=========================================" << std::endl;
+              return 0;
+          }
+          EOF
+          
+          # 2. Create the CMakeLists.txt
           cat << 'EOF' > CMakeLists.txt
           cmake_minimum_required(VERSION 3.20)
           project(XGBoostDebug CXX)
 
           message(STATUS "Looking for XGBoost...")
           find_package(xgboost REQUIRED)
-          
-          message(STATUS "=========================================")
           message(STATUS "SUCCESS: XGBoost CMake config was found!")
-          message(STATUS "=========================================")
-          EOF
           
+          add_executable(DebugApp main.cpp)
+          target_link_libraries(DebugApp xgboost::xgboost)
+          EOF
+
       - name: Physically Locate XGBoost Files
         run: |
-          echo "Scanning Conda environment for XGBoost..."
-          dir /s /b C:\*xgboost* 2>nul
+          echo "Scanning Conda environment for XGBoost headers and libs..."
+          dir /s /b "%CONDA_PREFIX%\*xgboost*" 2>nul | findstr /i "learner.h c_api.h xgboost.lib"
 
-      - name: Run CMake Configuration
+      - name: Test 1 - Build Standard
+        continue-on-error: true
         run: |
-          mkdir build
-          cd build
+          mkdir build_standard
+          cd build_standard
           
-          :: Naked CMake call, matching your setup.py
-          cmake ..
+          echo "Testing out-of-the-box CMake behavior..."
+          cmake -G "Visual Studio 17 2022" -T v143 ..
+          cmake --build . --config Release
+
+      - name: Test 2 - Build with CXXFLAGS
+        continue-on-error: true
+        run: |
+          mkdir build_cxxflags
+          cd build_cxxflags
+          
+          :: Simulate the variables Conda-Build provides during recipe builds
+          if not defined LIBRARY_INC set "LIBRARY_INC=%CONDA_PREFIX%\Library\include"
+          if not defined LIBRARY_LIB set "LIBRARY_LIB=%CONDA_PREFIX%\Library\lib"
+          
+          :: Convert backslashes to forward slashes to prevent CMake mangling
+          set "LIBRARY_INC_FWD=%LIBRARY_INC:\=/%"
+          set "LIBRARY_LIB_FWD=%LIBRARY_LIB:\=/%"
+          
+          :: Inject the safe, forward-slashed paths
+          set "CXXFLAGS=%CXXFLAGS% /I%LIBRARY_INC_FWD%"
+          set "LDFLAGS=%LDFLAGS% /LIBPATH:%LIBRARY_LIB_FWD%"
+          
+          cmake -G "Visual Studio 17 2022" -T v143 ..
+          cmake --build . --config Release
+
+      - name: Test 3 - Build with CL/LINK Compiler Bypass (Most Robust)
+        continue-on-error: true
+        run: |
+          mkdir build_cl_bypass
+          cd build_cl_bypass
+          
+          :: Simulate the variables Conda-Build provides during recipe builds
+          if not defined LIBRARY_INC set "LIBRARY_INC=%CONDA_PREFIX%\Library\include"
+          if not defined LIBRARY_LIB set "LIBRARY_LIB=%CONDA_PREFIX%\Library\lib"
+          
+          :: Inject directly into Microsoft's native compiler and linker variables
+          set "CL=/I%LIBRARY_INC% %CL%"
+          set "LINK=/LIBPATH:%LIBRARY_LIB% %LINK%"
+          
+          cmake -G "Visual Studio 17 2022" -T v143 ..
+          cmake --build . --config Release
+
+      - name: Run the compiled executable(s)
+        run: |
+          echo "Checking which tests passed..."
+          echo.
+          
+          if exist build_standard\Release\DebugApp.exe (
+              echo ----------------------------------------
+              echo [PASS] Standard build succeeded! Running it:
+              build_standard\Release\DebugApp.exe
+          ) else (
+              echo [FAIL] Standard build failed to compile.
+          )
+          
+          if exist build_cxxflags\Release\DebugApp.exe (
+              echo ----------------------------------------
+              echo [PASS] CXXFLAGS build succeeded! Running it:
+              build_cxxflags\Release\DebugApp.exe
+          ) else (
+              echo [FAIL] CXXFLAGS build failed to compile.
+          )
+          
+          if exist build_cl_bypass\Release\DebugApp.exe (
+              echo ----------------------------------------
+              echo [PASS] CL Bypass build succeeded! Running it:
+              build_cl_bypass\Release\DebugApp.exe
+          ) else (
+              echo [FAIL] CL Bypass build failed to compile.
+          )
