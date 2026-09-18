@@ -30,10 +30,15 @@ jobs:
           # 1. Create a minimal C++ program using XGBoost
           cat << 'EOF' > main.cpp
           #include <iostream>
+          #include <memory>
+          #include <vector>
           #include <xgboost/c_api.h>
           #include <xgboost/learner.h>
 
           int main() {
+              std::vector<std::shared_ptr<xgboost::DMatrix>> cache;
+              std::unique_ptr<xgboost::Learner> learner(xgboost::Learner::Create(cache));
+
               int major, minor, patch;
               XGBoostVersion(&major, &minor, &patch);
               std::cout << "=========================================" << std::endl;
@@ -54,6 +59,8 @@ jobs:
           
           add_executable(DebugApp main.cpp)
           target_link_libraries(DebugApp xgboost::xgboost)
+
+          target_include_directories(DebugApp PRIVATE "$ENV{CONDA_PREFIX}/Library/include")
           EOF
 
       - name: Physically Locate XGBoost Files
