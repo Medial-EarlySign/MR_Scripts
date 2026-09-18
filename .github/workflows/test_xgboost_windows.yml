@@ -31,6 +31,7 @@ jobs:
           cat << 'EOF' > main.cpp
           #include <iostream>
           #include <xgboost/c_api.h>
+          #include <xgboost/learner.h>
 
           int main() {
               int major, minor, patch;
@@ -58,7 +59,7 @@ jobs:
       - name: Physically Locate XGBoost Files
         run: |
           echo "Scanning Conda environment for XGBoost headers and libs..."
-          dir /s /b "C:\*xgboost*" 2>nul | findstr /i "xgboost.lib xgboost.dll learner.h"
+          dir /s /b "%CONDA_PREFIX%" 2>nul | findstr /i "xgboost.lib xgboost.dll learner.h c_api.h"
 
       - name: Test 1 - Build Standard
         run: |
