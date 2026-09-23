@@ -47,32 +47,6 @@ jobs:
             liblightgbm=4.6.0 ^
             llvm-openmp
 
-      - name: Show compiler and environment
-        run: |
-          echo CONDA_PREFIX=%CONDA_PREFIX%
-          echo PATH=%PATH%
-
-          where python
-          python --version
-
-          where cmake
-          cmake --version
-
-          where cl
-          cl 2>&1
-
-          echo.
-          echo === XGBoost include files ===
-          dir "%CONDA_PREFIX%\Library\include\xgboost"
-
-          echo.
-          echo === XGBoost libraries ===
-          dir "%CONDA_PREFIX%\Library\lib\*xgboost*
-
-          echo.
-          echo === XGBoost DLLs ===
-          dir "%CONDA_PREFIX%\Library\bin\*xgboost*
-
       - name: Build and install MedPython
         run: |
           set "CMAKE_GENERATOR_TOOLSET=v143"
