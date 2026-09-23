@@ -50,7 +50,8 @@ jobs:
       - name: Build and install MedPython
         run: |
           set "CMAKE_GENERATOR_TOOLSET=v143"
-          set "CXXFLAGS=%CXXFLAGS% /openmp:llvm"
+          set "CXXFLAGS=%CXXFLAGS% /openmp:llvm /I%CONDA_PREFIX%\Library\mingw-w64\include"
+          set "PYTHONUNBUFFERED=1"
 
           git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
           cd MR_LIBS/Internal/MedPyExport/generate_binding
