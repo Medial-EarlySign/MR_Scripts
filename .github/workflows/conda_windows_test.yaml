@@ -1,0 +1,105 @@
+name: Debug Windows MedPython in Conda
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-windows-medpython:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        # Keep the Conda environment activated for cmd steps
+        shell: cmd /C call {0}
+
+    steps:
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          auto-update-conda: true
+          activate-environment: test-env
+          python-version: "3.12"
+          channels: conda-forge,defaults
+          channel-priority: strict
+
+      # Rough equivalent of the build + host requirements in the recipe.
+      #
+      # The important change being tested:
+      #   libxgboost=3.4.1 is installed on Windows.
+      #
+      # Previously the recipe explicitly excluded it on Windows.
+      - name: Install build dependencies
+        run: |
+          conda install -y -c conda-forge ^
+            cxx-compiler ^
+            cmake ^
+            make ^
+            swig ^
+            setuptools ^
+            wheel ^
+            pip ^
+            numpy ^
+            eigen ^
+            libboost-headers ^
+            libxgboost=3.4.1 ^
+            dmlc ^
+            nlohmann_json ^
+            liblightgbm=4.6.0 ^
+            llvm-openmp
+
+      - name: Show compiler and environment
+        run: |
+          echo CONDA_PREFIX=%CONDA_PREFIX%
+          echo PATH=%PATH%
+
+          where python
+          python --version
+
+          where cmake
+          cmake --version
+
+          where cl
+          cl 2>&1
+
+          echo.
+          echo === XGBoost include files ===
+          dir "%CONDA_PREFIX%\Library\include\xgboost"
+
+          echo.
+          echo === XGBoost libraries ===
+          dir "%CONDA_PREFIX%\Library\lib\*xgboost*
+
+          echo.
+          echo === XGBoost DLLs ===
+          dir "%CONDA_PREFIX%\Library\bin\*xgboost*
+
+      - name: Build and install MedPython
+        run: |
+          set "CMAKE_GENERATOR_TOOLSET=v143"
+          set "CXXFLAGS=%CXXFLAGS% /openmp:llvm"
+
+          git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
+          cd MR_LIBS/Internal/MedPyExport/generate_binding
+          python -m pip install . --no-deps -vv
+
+      - name: Install runtime/test dependencies
+        run: |
+          conda install -y -c conda-forge ^
+            pandas ^
+            plotly ^
+            requests
+
+          python -m pip install medpython-etl
+
+      - name: Test imports
+        run: |
+          python -c "import med; print('med import OK')"
+          python -c "import AlgoMarker; print('AlgoMarker import OK')"
+
+      - name: Pip check
+        run: |
+          python -m pip check
+
+      - name: Run MedPython tests
+        run: |
+          python tests/run_all.py
