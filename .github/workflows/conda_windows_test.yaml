@@ -62,7 +62,8 @@ jobs:
           conda install -y -c conda-forge ^
             pandas ^
             plotly ^
-            requests
+            requests ^
+            medpython-etl
 
           python -m pip install medpython-etl
 
