@@ -5,15 +5,11 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   build_python_packages:
     name: Build Wheels (Manylinux)
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/project/medpython
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -47,8 +43,14 @@ jobs:
           podman run --rm -dt --name medpython_cont manylinux_medpython bash
           podman cp medpython_cont:/earlysign/app/MR_LIBS/Internal/MedPyExport/generate_binding/wheelhouse/. dist/
           podman stop medpython_cont
-          
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Upload distributions for publishing
+        uses: actions/upload-artifact@v7
         with:
-          packages-dir: dist/
+          name: pypi-dist-${{ github.run_attempt }}
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0

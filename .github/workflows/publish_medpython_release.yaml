@@ -1,0 +1,129 @@
+name: Publish medpython to PyPI
+run-name: Publish artifacts from build ${{ github.event.workflow_run.id }}
+
+on:
+  workflow_run:
+    workflows:
+      - Generate PyPi package of Medial EarlySign
+      - Build medpython (Windows)
+      - Build medpython (macOS)
+      - Build medpython (Linux Arm)
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  publish:
+    # Accept successful manual release builds from this repo's default branch.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'workflow_dispatch' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: pypi
+      url: https://pypi.org/project/medpython
+    permissions:
+      actions: write # Download artifacts and delete the published artifact.
+      id-token: write # PyPI Trusted Publishing.
+    env:
+      ARTIFACT_NAME: pypi-dist-${{ github.event.workflow_run.run_attempt }}
+
+    steps:
+      - name: Find this build attempt's artifact
+        id: artifact
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                ...context.repo,
+                run_id: context.payload.workflow_run.id,
+                name: process.env.ARTIFACT_NAME,
+                per_page: 100,
+              }
+            );
+            const matches = artifacts.filter(a =>
+              a.name === process.env.ARTIFACT_NAME && !a.expired
+            );
+            if (matches.length === 0) {
+              core.notice('No publishing artifact found; skipping publication.');
+              return;
+            }
+            if (matches.length !== 1) {
+              throw new Error(`Expected one unexpired ${process.env.ARTIFACT_NAME}; found ${matches.length}`);
+            }
+            core.setOutput('id', String(matches[0].id));
+
+      - name: Download distributions
+        if: ${{ steps.artifact.outputs.id != '' }}
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ steps.artifact.outputs.id }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: dist/
+
+      - name: Publish to PyPI
+        if: ${{ steps.artifact.outputs.id != '' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true # Allow retries after a partially successful upload.
+
+      - name: Verify published files before deleting the artifact
+        if: ${{ steps.artifact.outputs.id != '' }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          files = [p for p in Path('dist').iterdir()
+                   if p.is_file() and p.name.endswith(('.whl', '.tar.gz'))]
+          if not files:
+              raise SystemExit('No distributions found; keeping the artifact.')
+          expected = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+          request = urllib.request.Request(
+              'https://pypi.org/simple/medpython/',
+              headers={'Accept': 'application/vnd.pypi.simple.v1+json'},
+          )
+          for attempt in range(6):
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      published = {f['filename']: f['hashes']['sha256']
+                                   for f in json.load(response)['files']}
+                  mismatched = [name for name, digest in expected.items()
+                                if name in published and published[name] != digest]
+                  if mismatched:
+                      raise SystemExit(f'PyPI hash mismatch; keeping artifact: {mismatched}')
+                  missing = sorted(set(expected) - set(published))
+                  if not missing:
+                      print(f'Confirmed all {len(expected)} files on PyPI with matching SHA-256.')
+                      break
+                  error = f'Files not yet visible on PyPI: {missing}'
+              except (urllib.error.URLError, TimeoutError) as exc:
+                  error = str(exc)
+              if attempt == 5:
+                  raise SystemExit(f'{error}; keeping the artifact.')
+              time.sleep(5)
+          PY
+
+      - name: Delete the successfully published artifact
+        if: ${{ steps.artifact.outputs.id != '' }}
+        uses: actions/github-script@v9
+        env:
+          ARTIFACT_ID: ${{ steps.artifact.outputs.id }}
+        with:
+          script: |
+            await github.rest.actions.deleteArtifact({
+              ...context.repo,
+              artifact_id: Number(process.env.ARTIFACT_ID),
+            });
