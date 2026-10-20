@@ -12,11 +12,11 @@ git clone https://github.com/Medial-EarlySign/medpython.git MR_LIBS
 # add pandas, ipython, plotly to requirements
 
 PYBINARIES=(
-    "/usr/local/bin/python3.10"
     "/usr/local/bin/python3.11"
     "/usr/local/bin/python3.12"
     "/usr/local/bin/python3.13"
     "/usr/local/bin/python3.14"
+    "/usr/local/bin/python3.15"
 )
 
 cd MR_LIBS/Internal/MedPyExport/generate_binding
